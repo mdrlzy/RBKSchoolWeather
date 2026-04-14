@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="current_location">Текущее место</string>
+
+    <string name="max_temp">Макс.: %1$s</string>
+    <string name="min_temp">мин.: %1$s</string>
+    <string name="max_min_temp">Макс.: %1$s, мин.: %2$s</string>
+
+    <string name="edit_list">Изменить список</string>
+    <string name="notifications">Уведомления</string>
+    <string name="celsius">Градусы Цельсия</string>
+    <string name="fahrenheit">Градусы Фаренгейта</string>
+    <string name="units">Единицы</string>
+    <string name="report_problem">Сообщить о проблеме</string>
+
+    <string name="degrees_celsius_symbol">°C</string>
+    <string name="degrees_fahrenheit_symbol">°F</string>
+
+    <string name="more_weather_and_map_data">Подробнее о метеорологических и картографических данных</string>
+
+    <string name="in_average">В среднем</string>
+    <string name="feels_like">Ощущается как</string>
+    <string name="wind">Ветер</string>
+    <string name="uv_index">УФ-индекс</string>
+    <string name="sunset">Закат</string>
+    <string name="humidity">Влажность</string>
+    <string name="pressure">Давление</string>
+
+    <string name="wind_speed">Ветер</string>
+    <string name="wind_gusts">Порывы ветра</string>
+    <string name="wind_direction">Направление</string>
+
+    <string name="km_per_hour">км/ч</string>
+    <string name="hpa">гПа</string>
+</resources>
