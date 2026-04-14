@@ -1,4 +1,4 @@
-package com.mdrlzy.rbkweather.ui.theme
+package com.mdrlzy.ui.theme
 
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Shapes

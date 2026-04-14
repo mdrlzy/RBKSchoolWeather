@@ -21,3 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "RBK Weather"
 include(":app")
+include(":ui")

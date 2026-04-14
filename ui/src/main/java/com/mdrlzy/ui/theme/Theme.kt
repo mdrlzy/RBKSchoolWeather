@@ -1,6 +1,5 @@
-package com.mdrlzy.rbkweather.ui.theme
+package com.mdrlzy.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -74,6 +73,7 @@ fun RBKWeatherTheme(
     MaterialTheme(
       colorScheme = colorScheme,
       typography = Typography,
-      content = content
+      shapes = Shapes,
+      content = content,
     )
 }
