@@ -1,17 +1,18 @@
 package com.mdrlzy.rbkweather.data.network.dto
 
 data class WeatherResponse(
-    val main: Main,
-    val wind: Wind,
+    val name: String,
+    val main: MainDto,
+    val wind: WindDto,
     val weather: List<WeatherDto>
 )
 
-data class Main(
+data class MainDto(
     val temp: Double,
     val feels_like: Double
 )
 
-data class Wind(
+data class WindDto(
     val speed: Double
 )
 
