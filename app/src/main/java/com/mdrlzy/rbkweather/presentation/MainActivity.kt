@@ -21,6 +21,7 @@ import com.google.android.gms.location.LocationServices
 import com.mdrlzy.rbkweather.data.RetrofitClient
 import com.mdrlzy.rbkweather.data.repo.LocationRepoImpl
 import com.mdrlzy.rbkweather.data.repo.WeatherRepoImpl
+import com.mdrlzy.rbkweather.domain.usecase.GetCurrentWeatherUseCase
 import com.mdrlzy.ui.theme.RBKWeatherTheme
 import kotlinx.coroutines.launch
 
@@ -65,13 +66,12 @@ class MainActivity : ComponentActivity() {
 
     suspend fun makeRequest() {
         val locationClient = LocationServices.getFusedLocationProviderClient(this)
-        val locationData = LocationRepoImpl(locationClient).getCurrentLocation()
-        if (locationData == null) {
-            Log.d("TestRequest", "No location")
-            return
-        }
+        val locationRepo = LocationRepoImpl(locationClient)
+        val weatherRepo = WeatherRepoImpl(RetrofitClient.api)
 
-        val weatherResult = WeatherRepoImpl(RetrofitClient.api).getCurrent(locationData)
+        val getCurrentWeatherUseCase = GetCurrentWeatherUseCase(weatherRepo, locationRepo)
+
+        val weatherResult = getCurrentWeatherUseCase()
 
         weatherResult.fold(
             onSuccess = {
