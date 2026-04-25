@@ -10,18 +10,21 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.location.LocationServices
 import com.mdrlzy.rbkweather.data.RetrofitClient
 import com.mdrlzy.rbkweather.data.repo.LocationRepoImpl
 import com.mdrlzy.rbkweather.data.repo.WeatherRepoImpl
 import com.mdrlzy.rbkweather.domain.usecase.GetCurrentWeatherUseCase
+import com.mdrlzy.rbkweather.presentation.home.HomeScreen
+import com.mdrlzy.rbkweather.presentation.home.HomeScreenState
+import com.mdrlzy.rbkweather.presentation.navigation.Destination
 import com.mdrlzy.ui.theme.RBKWeatherTheme
 import kotlinx.coroutines.launch
 
@@ -34,11 +37,22 @@ class MainActivity : ComponentActivity() {
         }
         setContent {
             RBKWeatherTheme {
+                val navController = rememberNavController()
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    NavHost(
+                        navController = navController,
+                        startDestination = Destination.Home.route,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding)
+                    ) {
+                        composable(Destination.Home.route) {
+                            HomeScreen(
+                                state = HomeScreenState(),
+                                onRefresh = {}
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -98,21 +112,5 @@ class MainActivity : ComponentActivity() {
                 makeRequest()
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    RBKWeatherTheme {
-        Greeting("Android")
     }
 }
