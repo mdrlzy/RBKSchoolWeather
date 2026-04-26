@@ -1,7 +1,7 @@
-package com.mdrlzy.rbkweather.domain.repo
+package com.mdrlzy.rbkweather.domain.repository
 
 import com.mdrlzy.rbkweather.domain.model.LocationData
 
-interface LocationRepo {
+interface LocationRepository {
     suspend fun getCurrentLocation(): LocationData?
 }

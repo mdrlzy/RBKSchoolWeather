@@ -1,4 +1,4 @@
-package com.mdrlzy.rbkweather.data.network.dto
+package com.mdrlzy.rbkweather.data.remote.dto
 
 data class OneCallResponseDto(
     val lat: Double,

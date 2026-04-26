@@ -1,7 +1,7 @@
 package com.mdrlzy.rbkweather.di
 
 import com.mdrlzy.rbkweather.BuildConfig
-import com.mdrlzy.rbkweather.data.network.WeatherApi
+import com.mdrlzy.rbkweather.data.remote.WeatherApi
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.dsl.module

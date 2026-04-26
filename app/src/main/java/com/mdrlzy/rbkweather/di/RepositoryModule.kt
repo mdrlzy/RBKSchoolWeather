@@ -3,12 +3,12 @@ package com.mdrlzy.rbkweather.di
 import com.google.android.gms.location.LocationServices
 import com.mdrlzy.rbkweather.data.local.WeatherLocalDataSource
 import com.mdrlzy.rbkweather.data.local.WeatherLocalDataSourceImpl
-import com.mdrlzy.rbkweather.data.network.WeatherRemoteDataSource
-import com.mdrlzy.rbkweather.data.network.WeatherRemoteDataSourceImpl
-import com.mdrlzy.rbkweather.data.repo.LocationRepoImpl
-import com.mdrlzy.rbkweather.data.repo.WeatherRepoImpl
-import com.mdrlzy.rbkweather.domain.repo.LocationRepo
-import com.mdrlzy.rbkweather.domain.repo.WeatherRepo
+import com.mdrlzy.rbkweather.data.remote.WeatherRemoteDataSource
+import com.mdrlzy.rbkweather.data.remote.WeatherRemoteDataSourceImpl
+import com.mdrlzy.rbkweather.data.repository.LocationRepositoryImpl
+import com.mdrlzy.rbkweather.data.repository.WeatherRepositoryImpl
+import com.mdrlzy.rbkweather.domain.repository.LocationRepository
+import com.mdrlzy.rbkweather.domain.repository.WeatherRepository
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
@@ -17,8 +17,8 @@ val repositoryModule = module {
         LocationServices.getFusedLocationProviderClient(androidContext())
     }
 
-    single<LocationRepo> { LocationRepoImpl(get()) }
+    single<LocationRepository> { LocationRepositoryImpl(get()) }
     single<WeatherRemoteDataSource> { WeatherRemoteDataSourceImpl(get()) }
     single<WeatherLocalDataSource> { WeatherLocalDataSourceImpl(get(), get(), get(), get(), get()) }
-    single<WeatherRepo> { WeatherRepoImpl(get(), get()) }
+    single<WeatherRepository> { WeatherRepositoryImpl(get(), get()) }
 }

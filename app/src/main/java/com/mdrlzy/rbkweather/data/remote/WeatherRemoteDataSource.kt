@@ -1,7 +1,7 @@
-package com.mdrlzy.rbkweather.data.network
+package com.mdrlzy.rbkweather.data.remote
 
 import com.mdrlzy.rbkweather.BuildConfig
-import com.mdrlzy.rbkweather.data.network.dto.OneCallResponseDto
+import com.mdrlzy.rbkweather.data.remote.dto.OneCallResponseDto
 import com.mdrlzy.rbkweather.domain.model.LocationData
 
 interface WeatherRemoteDataSource {

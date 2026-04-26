@@ -1,17 +1,17 @@
 package com.mdrlzy.rbkweather.domain.usecase
 
 import com.mdrlzy.rbkweather.domain.model.OneCallWeather
-import com.mdrlzy.rbkweather.domain.repo.LocationRepo
-import com.mdrlzy.rbkweather.domain.repo.WeatherRepo
+import com.mdrlzy.rbkweather.domain.repository.LocationRepository
+import com.mdrlzy.rbkweather.domain.repository.WeatherRepository
 
 class GetCurrentWeatherUseCase(
-    private val weatherRepo: WeatherRepo,
-    private val locationRepo: LocationRepo,
+    private val weatherRepository: WeatherRepository,
+    private val locationRepository: LocationRepository,
 ) {
     suspend operator fun invoke(): Result<OneCallWeather> {
-        val locationData = locationRepo.getCurrentLocation()
+        val locationData = locationRepository.getCurrentLocation()
             ?: return Result.failure(IllegalStateException("No location"))
 
-        return weatherRepo.getCurrent(locationData)
+        return weatherRepository.getCurrent(locationData)
     }
 }

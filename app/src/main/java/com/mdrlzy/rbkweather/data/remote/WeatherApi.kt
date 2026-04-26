@@ -1,6 +1,6 @@
-package com.mdrlzy.rbkweather.data.network
+package com.mdrlzy.rbkweather.data.remote
 
-import com.mdrlzy.rbkweather.data.network.dto.OneCallResponseDto
+import com.mdrlzy.rbkweather.data.remote.dto.OneCallResponseDto
 import retrofit2.http.GET
 import retrofit2.http.Query
 

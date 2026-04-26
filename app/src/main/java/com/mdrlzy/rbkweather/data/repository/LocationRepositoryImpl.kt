@@ -1,15 +1,15 @@
-package com.mdrlzy.rbkweather.data.repo
+package com.mdrlzy.rbkweather.data.repository
 
 import android.annotation.SuppressLint
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.mdrlzy.rbkweather.domain.model.LocationData
-import com.mdrlzy.rbkweather.domain.repo.LocationRepo
+import com.mdrlzy.rbkweather.domain.repository.LocationRepository
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 
-class LocationRepoImpl(
+class LocationRepositoryImpl(
     private val fusedLocationClient: FusedLocationProviderClient
-): LocationRepo {
+): LocationRepository {
 
     @SuppressLint("MissingPermission")
     override suspend fun getCurrentLocation(): LocationData? =

@@ -1,9 +1,9 @@
-package com.mdrlzy.rbkweather.domain.repo
+package com.mdrlzy.rbkweather.domain.repository
 
 import com.mdrlzy.rbkweather.domain.model.LocationData
 import com.mdrlzy.rbkweather.domain.model.OneCallWeather
 
-interface WeatherRepo {
+interface WeatherRepository {
     suspend fun getCurrent(
         locationData: LocationData
     ): Result<OneCallWeather>

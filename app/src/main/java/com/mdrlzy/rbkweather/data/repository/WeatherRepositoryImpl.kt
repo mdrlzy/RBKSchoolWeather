@@ -1,11 +1,11 @@
-package com.mdrlzy.rbkweather.data.repo
+package com.mdrlzy.rbkweather.data.repository
 
 import com.mdrlzy.rbkweather.data.local.WeatherLocalDataSource
 import com.mdrlzy.rbkweather.data.mapper.toDomain
-import com.mdrlzy.rbkweather.data.network.WeatherRemoteDataSource
+import com.mdrlzy.rbkweather.data.remote.WeatherRemoteDataSource
 import com.mdrlzy.rbkweather.domain.model.LocationData
 import com.mdrlzy.rbkweather.domain.model.OneCallWeather
-import com.mdrlzy.rbkweather.domain.repo.WeatherRepo
+import com.mdrlzy.rbkweather.domain.repository.WeatherRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.OffsetDateTime
@@ -14,10 +14,10 @@ import kotlin.time.Duration.Companion.days
 
 private val CACHE_MAX_AGE_SECONDS = 1.days.inWholeSeconds
 
-class WeatherRepoImpl(
+class WeatherRepositoryImpl(
     private val remoteDataSource: WeatherRemoteDataSource,
     private val localDataSource: WeatherLocalDataSource,
-) : WeatherRepo {
+) : WeatherRepository {
     override suspend fun getCurrent(
         locationData: LocationData
     ): Result<OneCallWeather> = withContext(Dispatchers.IO) {
