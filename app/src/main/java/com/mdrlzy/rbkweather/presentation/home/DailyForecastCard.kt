@@ -29,7 +29,7 @@ import com.mdrlzy.ui.theme.CoreRDrawable
 import com.mdrlzy.ui.theme.CoreRString
 import com.mdrlzy.ui.theme.OnCardContent
 
-private data class DailyForecastUi(
+data class DailyForecastUi(
     val day: String,
     val minTemp: Int,
     val maxTemp: Int,
@@ -49,7 +49,7 @@ private val dailyForecastMock = listOf(
 )
 
 @Composable
-fun DailyForecastCard() {
+fun DailyForecastCard(dailyItems: List<DailyForecastUi>) {
     InfoCard(
         modifier = Modifier.fillMaxWidth(),
     ) {
@@ -63,7 +63,7 @@ fun DailyForecastCard() {
             AppHorDivider()
             Spacer(Modifier.height(12.dp))
 
-            dailyForecastMock.forEachIndexed { index, item ->
+            dailyItems.forEachIndexed { index, item ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth(),

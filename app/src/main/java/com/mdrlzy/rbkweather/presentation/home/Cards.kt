@@ -14,44 +14,55 @@ import com.mdrlzy.ui.components.InfoCardBasic
 import com.mdrlzy.ui.components.InfoCardSmall
 import com.mdrlzy.ui.theme.CoreRDrawable
 import com.mdrlzy.ui.theme.CoreRString
+import java.time.OffsetDateTime
+import java.time.format.DateTimeFormatter
 
 @Composable
-fun Average(modifier: Modifier) {
+fun Average(
+    modifier: Modifier,
+    averageTemp: Int,
+) {
     InfoCardSmall(
         modifier = modifier,
         icon = CoreRDrawable.graph,
         title = stringResource(CoreRString.in_average),
     ) {
         Text(
-            text = "На 10°",
+            text = "На ${averageTemp}°",
             style = MaterialTheme.typography.headlineMedium,
         )
     }
 }
 
 @Composable
-fun FeelsLike(modifier: Modifier) {
+fun FeelsLike(
+    modifier: Modifier,
+    feelsLike: Int,
+) {
     InfoCardSmall(
         modifier = modifier,
         icon = CoreRDrawable.graph,
         title = stringResource(CoreRString.feels_like),
     ) {
         Text(
-            text = "12°",
+            text = "${feelsLike}°",
             style = MaterialTheme.typography.headlineMedium,
         )
     }
 }
 
 @Composable
-fun Humidity(modifier: Modifier) {
+fun Humidity(
+    modifier: Modifier,
+    humidity: Int,
+) {
     InfoCardSmall(
         modifier = modifier,
         icon = CoreRDrawable.humidity,
         title = stringResource(CoreRString.humidity),
     ) {
         Text(
-            text = "70%",
+            text = "${humidity}%",
             style = MaterialTheme.typography.headlineMedium,
         )
 
@@ -62,14 +73,17 @@ fun Humidity(modifier: Modifier) {
 }
 
 @Composable
-fun Pressure(modifier: Modifier) {
+fun Pressure(
+    modifier: Modifier,
+    pressure: Int,
+) {
     InfoCardSmall(
         modifier = modifier,
         icon = CoreRDrawable.squeeze,
         title = stringResource(CoreRString.pressure),
     ) {
         Text(
-            text = "1022",
+            text = pressure.toString(),
             style = MaterialTheme.typography.headlineMedium,
         )
 
@@ -80,39 +94,52 @@ fun Pressure(modifier: Modifier) {
 }
 
 @Composable
-fun UVIndex(modifier: Modifier) {
+fun UVIndex(
+    modifier: Modifier,
+    uvIndex: Int,
+) {
     InfoCardSmall(
         modifier = modifier,
         icon = CoreRDrawable.squeeze,
         title = stringResource(CoreRString.uv_index),
     ) {
         Text(
-            text = "0",
+            text = uvIndex.toString(),
             style = MaterialTheme.typography.headlineMedium,
         )
     }
 }
 
 @Composable
-fun Sunset(modifier: Modifier) {
+fun Sunset(
+    modifier: Modifier,
+    sunsetTime: OffsetDateTime,
+    sunriseTime: OffsetDateTime,
+) {
+    val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+
     InfoCardSmall(
         modifier = modifier,
         icon = CoreRDrawable.sunset,
         title = stringResource(CoreRString.sunset),
     ) {
         Text(
-            text = "17:29",
+            text = sunsetTime.format(timeFormatter),
             style = MaterialTheme.typography.headlineMedium,
         )
 
         Spacer(modifier = Modifier.weight(1f))
 
-        Text(text = "Восход в 06:41")
+        Text(text = "Восход в ${sunriseTime.format(timeFormatter)}")
     }
 }
 
 @Composable
-fun WindCard() {
+fun WindCard(
+    windSpeed: Int,
+    windMaxSpeed: Int,
+    windDirection: String,
+) {
     InfoCardBasic(
         icon = CoreRDrawable.wind,
         title = stringResource(CoreRString.wind),
@@ -120,7 +147,7 @@ fun WindCard() {
         Row {
             Text(text = "Ветер", style = MaterialTheme.typography.bodyLarge)
             Spacer(Modifier.weight(1f))
-            Text(text = "6 км/ч", style = MaterialTheme.typography.bodyLarge)
+            Text(text = "$windSpeed км/ч", style = MaterialTheme.typography.bodyLarge)
         }
 
         Spacer(Modifier.height(6.dp))
@@ -130,7 +157,7 @@ fun WindCard() {
         Row {
             Text(text = "Порывы ветра", style = MaterialTheme.typography.bodyLarge)
             Spacer(Modifier.weight(1f))
-            Text(text = "6 км/ч", style = MaterialTheme.typography.bodyLarge)
+            Text(text = "$windMaxSpeed км/ч", style = MaterialTheme.typography.bodyLarge)
         }
 
         Spacer(Modifier.height(6.dp))
@@ -140,7 +167,7 @@ fun WindCard() {
         Row {
             Text(text = "Направление", style = MaterialTheme.typography.bodyLarge)
             Spacer(Modifier.weight(1f))
-            Text(text = "6 км/ч", style = MaterialTheme.typography.bodyLarge)
+            Text(text = windDirection, style = MaterialTheme.typography.bodyLarge)
         }
     }
 }

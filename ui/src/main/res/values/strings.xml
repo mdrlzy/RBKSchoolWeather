@@ -33,4 +33,7 @@
 
     <string name="km_per_hour">км/ч</string>
     <string name="hpa">гПа</string>
+
+    <string name="home_toast_weather_load_failed">Не удалось загрузить погоду</string>
+    <string name="home_toast_location_permission_denied">Разрешение на геолокацию не выдано</string>
 </resources>

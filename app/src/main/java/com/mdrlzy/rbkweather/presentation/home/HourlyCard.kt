@@ -39,13 +39,16 @@ private val mockHourlyItems = listOf(
 )
 
 @Composable
-fun HourlyCard() {
+fun HourlyCard(
+    description: String,
+    hourItems: List<HourlyUiModel>,
+) {
     InfoCard(
         modifier = Modifier.fillMaxWidth(),
     ) {
         Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
             Text(
-                text = "Порывы ветра до 14 км/ч...",
+                text = description,
                 color = OnCardContent,
                 style = MaterialTheme.typography.bodyLarge
             )
@@ -60,7 +63,7 @@ fun HourlyCard() {
                 horizontalArrangement = Arrangement.spacedBy(24.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                items(mockHourlyItems) { item ->
+                items(hourItems) { item ->
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
                             text = item.hour,
