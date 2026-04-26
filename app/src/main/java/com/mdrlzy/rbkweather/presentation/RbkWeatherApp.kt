@@ -1,4 +1,4 @@
-package com.mdrlzy.rbkweather
+package com.mdrlzy.rbkweather.presentation
 
 import android.app.Application
 import com.mdrlzy.rbkweather.di.appModule

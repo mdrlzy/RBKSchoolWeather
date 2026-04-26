@@ -85,7 +85,7 @@ class HomeViewModel(
                 },
                 onFailure = {
                     _state.update {
-                        it.copy(isRefreshing = false, isInitialized = true)
+                        it.copy(isRefreshing = false)
                     }
                     emitEffect(HomeEffect.WeatherLoadFailed)
                 }
