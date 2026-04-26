@@ -13,6 +13,8 @@ val AppSurface = Color(0xFF315B84)
 val AppSurfaceVariant = Color(0xFF3D6C99)
 
 val OnDark = Color(0xFFFFFFFF)
+val OnCardContent = Color(0xFFFFFBFC)
+val OnWeatherDescription = Color(0xFFC9FFFA)
 val OnDarkMuted = Color(0xB3FFFFFF)
 val OnDarkDim = Color(0x80FFFFFF)
 

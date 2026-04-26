@@ -18,18 +18,22 @@
 
     <string name="more_weather_and_map_data">Подробнее о метеорологических и картографических данных</string>
 
-    <string name="in_average">В среднем</string>
-    <string name="feels_like">Ощущается как</string>
-    <string name="wind">Ветер</string>
-    <string name="uv_index">УФ-индекс</string>
-    <string name="sunset">Закат</string>
-    <string name="humidity">Влажность</string>
-    <string name="pressure">Давление</string>
+    <string name="in_average">В СРЕДНЕМ</string>
+    <string name="feels_like">ОЩУЩАЕТСЯ КАК</string>
+    <string name="wind">ВЕТЕР</string>
+    <string name="uv_index">УФ-ИНДЕКС</string>
+    <string name="sunset">ЗАКАТ</string>
+    <string name="humidity">ВЛАЖНОСТЬ</string>
+    <string name="pressure">ДАВЛЕНИЕ</string>
 
     <string name="wind_speed">Ветер</string>
     <string name="wind_gusts">Порывы ветра</string>
     <string name="wind_direction">Направление</string>
+    <string name="ten_day_forecast">ПРОГНОЗ НА 10 ДНЕЙ</string>
 
     <string name="km_per_hour">км/ч</string>
     <string name="hpa">гПа</string>
+
+    <string name="home_toast_weather_load_failed">Не удалось загрузить погоду</string>
+    <string name="home_toast_location_permission_denied">Разрешение на геолокацию не выдано</string>
 </resources>
