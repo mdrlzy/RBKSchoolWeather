@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="current_location">Текущее место</string>
+    <string name="city_list_title">Погода</string>
+    <string name="city_list_search_placeholder">Поиск города или аэропорта</string>
+    <string name="city_list_footer_prefix">Подробнее о\u0020</string>
+    <string name="city_list_footer_link_meteo">метеорологических</string>
+    <string name="city_list_footer_between">\u0020и\u0020</string>
+    <string name="city_list_footer_link_carto">картографических</string>
+    <string name="city_list_footer_suffix">\u0020данных</string>
 
     <string name="max_temp">Макс.: %1$s</string>
     <string name="min_temp">мин.: %1$s</string>

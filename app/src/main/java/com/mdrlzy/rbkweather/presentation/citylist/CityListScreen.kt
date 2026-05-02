@@ -1,0 +1,302 @@
+package com.mdrlzy.rbkweather.presentation.citylist
+
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.mdrlzy.ui.theme.AppBackground
+import com.mdrlzy.ui.theme.BlueGradient
+import com.mdrlzy.ui.theme.CoreRDrawable
+import com.mdrlzy.ui.theme.CoreRString
+import com.mdrlzy.ui.theme.OnWeatherDescription
+import com.mdrlzy.ui.theme.OutlineLight
+import org.koin.androidx.compose.koinViewModel
+
+@Composable
+fun CityListScreen(
+    viewModel: CityListViewModel = koinViewModel(),
+    modifier: Modifier = Modifier,
+) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(AppBackground),
+    ) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            Spacer(Modifier.height(12.dp))
+            CityListHeader(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                title = stringResource(CoreRString.city_list_title),
+                onClick = { }
+            )
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .statusBarsPadding(),
+                contentPadding = PaddingValues(
+                    horizontal = 16.dp,
+                    vertical = 12.dp
+                ),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                items(
+                    items = state.cities,
+                    key = { it.id },
+                ) { city ->
+                    CityWeatherCard(item = city)
+                }
+                item {
+                    Spacer(Modifier.height(8.dp))
+                    CityListFooter()
+                }
+            }
+        }
+
+        CityListSearchBar(
+            placeholder = stringResource(CoreRString.city_list_search_placeholder),
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .padding(horizontal = 28.dp, vertical = 28.dp),
+        )
+    }
+}
+
+@Composable
+private fun CityListHeader(
+    modifier: Modifier = Modifier,
+    title: String,
+    onClick: () -> Unit,
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = title,
+            color = Color.White,
+            style = MaterialTheme.typography.headlineLarge
+        )
+        Box(
+            modifier = Modifier
+                .size(44.dp)
+                .shadow(
+                    elevation = 4.dp,
+                    shape = CircleShape,
+                    spotColor = Color(0x29000000),
+                    ambientColor = Color(0x29000000)
+                )
+                .clip(CircleShape)
+                .background(BlueGradient)
+                .border(1.dp, OutlineLight, CircleShape)
+                .clickable(onClick = onClick),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                modifier = Modifier.size(32.dp),
+                painter = painterResource(CoreRDrawable.more__dots),
+                contentDescription = null,
+                tint = Color.White,
+            )
+        }
+    }
+}
+
+@Composable
+private fun CityWeatherCard(
+    item: CityWeatherCardUiItem,
+    modifier: Modifier = Modifier,
+) {
+    val shape = RoundedCornerShape(22.dp)
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(110.dp)
+            .clip(shape),
+    ) {
+        Image(
+            modifier = Modifier.fillMaxSize(),
+            painter = painterResource(CoreRDrawable.bg_clear_day),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            alignment = Alignment.TopCenter,
+        )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 18.dp, vertical = 16.dp),
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Top,
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = item.cityName,
+                        color = Color.White,
+                        style = MaterialTheme.typography.titleLarge,
+                    )
+                    Spacer(Modifier.height(2.dp))
+                    Text(
+                        text = item.subtitle,
+                        color = OnWeatherDescription,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+                Text(
+                    text = item.temperature,
+                    color = Color.White,
+                    fontSize = 48.sp,
+                    fontWeight = FontWeight.W300,
+                    letterSpacing = 4.sp,
+                )
+            }
+            Spacer(Modifier.weight(1f))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Bottom,
+            ) {
+                Text(
+                    text = item.condition,
+                    color = OnWeatherDescription,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.weight(1f),
+                )
+                Text(
+                    text = item.temperatureRange,
+                    color = Color.White,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.W700,
+                    textAlign = TextAlign.End,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun CityListFooter(
+    modifier: Modifier = Modifier,
+) {
+    val prefix = stringResource(CoreRString.city_list_footer_prefix)
+    val firstLink = stringResource(CoreRString.city_list_footer_link_meteo)
+    val between = stringResource(CoreRString.city_list_footer_between)
+    val secondLink = stringResource(CoreRString.city_list_footer_link_carto)
+    val suffix = stringResource(CoreRString.city_list_footer_suffix)
+
+    val annotated = buildAnnotatedString {
+        append(prefix)
+        withStyle(
+            SpanStyle(
+                color = OutlineLight,
+                textDecoration = TextDecoration.Underline,
+            ),
+        ) {
+            append(firstLink)
+        }
+        append(between)
+        withStyle(
+            SpanStyle(
+                color = OutlineLight,
+                textDecoration = TextDecoration.Underline,
+            ),
+        ) {
+            append(secondLink)
+        }
+        append(suffix)
+    }
+    Text(
+        text = annotated,
+        modifier = modifier.fillMaxWidth(),
+        color = OutlineLight,
+        fontSize = 10.sp,
+        fontWeight = FontWeight.W500,
+        textAlign = TextAlign.Center,
+    )
+}
+
+@Composable
+private fun CityListSearchBar(
+    placeholder: String,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier
+            .size(44.dp)
+            .shadow(
+                elevation = 4.dp,
+                shape = RoundedCornerShape(40.dp),
+                spotColor = Color(0x29000000),
+                ambientColor = Color(0x29000000)
+            )
+            .clip(RoundedCornerShape(40.dp))
+            .background(BlueGradient)
+            .border(1.dp, OutlineLight, RoundedCornerShape(40.dp))
+            .padding(horizontal = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            painter = painterResource(CoreRDrawable.search),
+            contentDescription = null,
+            tint = Color.Unspecified,
+            modifier = Modifier.size(20.dp),
+        )
+        Spacer(Modifier.size(12.dp))
+        Text(
+            text = placeholder,
+            color = OutlineLight,
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.weight(1f),
+        )
+        Spacer(Modifier.width(8.dp))
+        Icon(
+            painter = painterResource(CoreRDrawable.microphone),
+            contentDescription = null,
+            tint = Color.Unspecified,
+            modifier = Modifier.size(20.dp),
+        )
+    }
+}

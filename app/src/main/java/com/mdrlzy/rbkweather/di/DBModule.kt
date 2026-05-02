@@ -22,4 +22,5 @@ val dbModule = module {
     single { get<WeatherDatabase>().hourlyWeatherDao() }
     single { get<WeatherDatabase>().dailyWeatherDao() }
     single { get<WeatherDatabase>().weatherConditionDao() }
+    single { get<WeatherDatabase>().cityLocationDao() }
 }

@@ -20,20 +20,11 @@ import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
-private const val OWNER_CURRENT = "current"
-private const val OWNER_HOURLY = "hourly"
-private const val OWNER_DAILY = "daily"
-
-private data class OwnerKey(
-    val ownerType: String,
-    val ownerIndex: Int,
-)
-
 data class LocalWeatherBundle(
     val cache: WeatherCacheEntity,
     val hourly: List<HourlyWeatherEntity>,
     val daily: List<DailyWeatherEntity>,
-    val conditions: List<WeatherConditionEntity>,
+    val currentConditions: List<WeatherConditionEntity>,
 )
 
 fun OneCallResponseDto.toDomain(): OneCallWeather {
@@ -48,11 +39,11 @@ fun OneCallResponseDto.toDomain(): OneCallWeather {
     )
 }
 
-fun OneCallWeather.toLocalBundle(): LocalWeatherBundle {
+fun OneCallWeather.toLocalBundle(locationId: Long): LocalWeatherBundle {
     val currentEpoch = current.dateTime.toEpochSecond()
 
     val cache = WeatherCacheEntity(
-        id = 0,
+        locationId = locationId,
         cachedAtEpochMillis = System.currentTimeMillis(),
         latitude = latitude,
         longitude = longitude,
@@ -70,18 +61,18 @@ fun OneCallWeather.toLocalBundle(): LocalWeatherBundle {
         currentWindDeg = current.windDeg,
     )
 
-    val hourlyEntities = hourly.mapIndexed { index, item ->
+    val hourlyEntities = hourly.map { item ->
         HourlyWeatherEntity(
-            position = index,
+            locationId = locationId,
             dateTimeEpochSeconds = item.dateTime.toEpochSecond(),
             temp = item.temp,
             precipitationProbability = item.precipitationProbability,
         )
     }
 
-    val dailyEntities = daily.mapIndexed { index, item ->
+    val dailyEntities = daily.map { item ->
         DailyWeatherEntity(
-            position = index,
+            locationId = locationId,
             dateTimeEpochSeconds = item.dateTime.toEpochSecond(),
             sunriseEpochSeconds = item.sunrise?.toEpochSecond(),
             sunsetEpochSeconds = item.sunset?.toEpochSecond(),
@@ -95,25 +86,15 @@ fun OneCallWeather.toLocalBundle(): LocalWeatherBundle {
         )
     }
 
-    val currentConditions = current.weather.mapIndexed { index, weather ->
-        weather.toEntity(ownerType = OWNER_CURRENT, ownerIndex = 0, position = index)
-    }
-    val hourlyConditions = hourly.flatMapIndexed { hourIndex, item ->
-        item.weather.mapIndexed { conditionIndex, weather ->
-            weather.toEntity(ownerType = OWNER_HOURLY, ownerIndex = hourIndex, position = conditionIndex)
-        }
-    }
-    val dailyConditions = daily.flatMapIndexed { dayIndex, item ->
-        item.weather.mapIndexed { conditionIndex, weather ->
-            weather.toEntity(ownerType = OWNER_DAILY, ownerIndex = dayIndex, position = conditionIndex)
-        }
+    val currentConditions = current.weather.map { weather ->
+        weather.toEntity(currentWeatherLocationId = locationId)
     }
 
     return LocalWeatherBundle(
         cache = cache,
         hourly = hourlyEntities,
         daily = dailyEntities,
-        conditions = currentConditions + hourlyConditions + dailyConditions,
+        currentConditions = currentConditions,
     )
 }
 
@@ -122,13 +103,16 @@ fun WeatherCacheEntity.toDomain(
     dailyEntities: List<DailyWeatherEntity>,
     conditionEntities: List<WeatherConditionEntity>,
 ): OneCallWeather {
-    val conditionsByOwner = conditionEntities.groupBy { OwnerKey(it.ownerType, it.ownerIndex) }
-    val offset = timezoneOffsetSeconds
-
-    val currentConditions = conditionsByOwner[OwnerKey(OWNER_CURRENT, 0)]
-        .orEmpty()
-        .sortedBy { it.position }
+    val currentConditions = conditionEntities
+        .filter { it.currentWeatherLocationId == this.locationId }
         .map { it.toDomain() }
+    val conditionsByHourlyId = conditionEntities
+        .filter { it.hourlyWeatherId != null }
+        .groupBy { requireNotNull(it.hourlyWeatherId) }
+    val conditionsByDailyId = conditionEntities
+        .filter { it.dailyWeatherId != null }
+        .groupBy { requireNotNull(it.dailyWeatherId) }
+    val offset = timezoneOffsetSeconds
 
     return OneCallWeather(
         latitude = latitude,
@@ -148,17 +132,19 @@ fun WeatherCacheEntity.toDomain(
             windDeg = currentWindDeg,
             weather = currentConditions,
         ),
-        hourly = hourlyEntities.mapIndexed { hourIndex, item ->
-            val key = OwnerKey(OWNER_HOURLY, hourIndex)
+        hourly = hourlyEntities
+            .sortedBy { it.dateTimeEpochSeconds }
+            .map { item ->
             HourlyWeather(
                 dateTime = item.dateTimeEpochSeconds.toOffsetDateTime(offset),
                 temp = item.temp,
                 precipitationProbability = item.precipitationProbability,
-                weather = conditionsByOwner[key].orEmpty().sortedBy { it.position }.map { it.toDomain() },
+                weather = conditionsByHourlyId[item.id].orEmpty().map { it.toDomain() },
             )
         },
-        daily = dailyEntities.mapIndexed { dayIndex, item ->
-            val key = OwnerKey(OWNER_DAILY, dayIndex)
+        daily = dailyEntities
+            .sortedBy { it.dateTimeEpochSeconds }
+            .map { item ->
             DailyWeather(
                 dateTime = item.dateTimeEpochSeconds.toOffsetDateTime(offset),
                 sunrise = item.sunriseEpochSeconds?.toOffsetDateTime(offset),
@@ -172,7 +158,7 @@ fun WeatherCacheEntity.toDomain(
                 windDeg = item.windDeg,
                 uvIndex = item.uvIndex,
                 summary = item.summary,
-                weather = conditionsByOwner[key].orEmpty().sortedBy { it.position }.map { it.toDomain() },
+                weather = conditionsByDailyId[item.id].orEmpty().map { it.toDomain() },
             )
         },
     )
@@ -234,15 +220,15 @@ private fun WeatherInfoDto.toDomain(): WeatherCondition {
     )
 }
 
-private fun WeatherCondition.toEntity(
-    ownerType: String,
-    ownerIndex: Int,
-    position: Int,
+fun WeatherCondition.toEntity(
+    currentWeatherLocationId: Long? = null,
+    hourlyWeatherId: Long? = null,
+    dailyWeatherId: Long? = null,
 ): WeatherConditionEntity {
     return WeatherConditionEntity(
-        ownerType = ownerType,
-        ownerIndex = ownerIndex,
-        position = position,
+        currentWeatherLocationId = currentWeatherLocationId,
+        hourlyWeatherId = hourlyWeatherId,
+        dailyWeatherId = dailyWeatherId,
         weatherId = id,
         main = main,
         description = description,

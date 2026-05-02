@@ -3,6 +3,7 @@ package com.mdrlzy.rbkweather.data.repository
 import com.mdrlzy.rbkweather.data.local.WeatherLocalDataSource
 import com.mdrlzy.rbkweather.data.mapper.toDomain
 import com.mdrlzy.rbkweather.data.remote.WeatherRemoteDataSource
+import com.mdrlzy.rbkweather.domain.model.CityLocation
 import com.mdrlzy.rbkweather.domain.model.LocationData
 import com.mdrlzy.rbkweather.domain.model.OneCallWeather
 import com.mdrlzy.rbkweather.domain.repository.WeatherRepository
@@ -19,16 +20,17 @@ class WeatherRepositoryImpl(
     private val localDataSource: WeatherLocalDataSource,
 ) : WeatherRepository {
     override suspend fun getCurrent(
-        locationData: LocationData
+        cityLocation: CityLocation,
     ): Result<OneCallWeather> = withContext(Dispatchers.IO) {
-        val localWeather = localDataSource.getCurrentWeather()
+        val locationData = cityLocation.toLocationData()
+        val localWeather = localDataSource.getCurrentWeather(cityLocation)
             ?.takeIf { it.isFreshCache() }
         val remoteResult = runCatching { remoteDataSource.getCurrentWeather(locationData).toDomain() }
 
         remoteResult.fold(
             onSuccess = { remoteWeather ->
                 runCatching {
-                    localDataSource.saveCurrentWeather(remoteWeather)
+                    localDataSource.saveCurrentWeather(cityLocation, remoteWeather)
                 }
 
                 Result.success(remoteWeather)
@@ -42,6 +44,13 @@ class WeatherRepositoryImpl(
             }
         )
     }
+}
+
+private fun CityLocation.toLocationData(): LocationData {
+    return LocationData(
+        latitude = latitude,
+        longitude = longitude,
+    )
 }
 
 private fun OneCallWeather.isFreshCache(now: OffsetDateTime = OffsetDateTime.now(ZoneOffset.UTC)): Boolean {
