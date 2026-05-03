@@ -5,9 +5,12 @@ import androidx.lifecycle.viewModelScope
 import com.mdrlzy.rbkweather.domain.model.CityWeatherSummary
 import com.mdrlzy.rbkweather.domain.repository.CityLocationRepository
 import com.mdrlzy.rbkweather.domain.repository.WeatherRepository
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.ZoneOffset
@@ -22,6 +25,9 @@ class CityListViewModel(
     private val _state = MutableStateFlow(CityListScreenState.initial())
     val state: StateFlow<CityListScreenState> = _state.asStateFlow()
 
+    private val _effect = Channel<CityListEffect>(Channel.BUFFERED)
+    val effect: Flow<CityListEffect> = _effect.receiveAsFlow()
+
     init {
         viewModelScope.launch {
             cityLocationRepository.ensureDefaultCities()
@@ -31,6 +37,23 @@ class CityListViewModel(
             val cities = cityLocationRepository.getCityWeatherSummaries()
             _state.value = CityListScreenState(cities = cities.map { it.toUi() })
         }
+    }
+
+    fun onMoreClick() {
+        viewModelScope.launch {
+            _effect.send(CityListEffect.ShowMenuBottomSheet)
+        }
+    }
+
+    fun onMenuDismiss() {
+        viewModelScope.launch {
+            _effect.send(CityListEffect.HideMenuBottomSheet)
+        }
+    }
+
+    override fun onCleared() {
+        _effect.close()
+        super.onCleared()
     }
 }
 

@@ -16,3 +16,8 @@ data class CityListScreenState(
         fun initial() = CityListScreenState(cities = emptyList())
     }
 }
+
+sealed interface CityListEffect {
+    data object ShowMenuBottomSheet : CityListEffect
+    data object HideMenuBottomSheet : CityListEffect
+}

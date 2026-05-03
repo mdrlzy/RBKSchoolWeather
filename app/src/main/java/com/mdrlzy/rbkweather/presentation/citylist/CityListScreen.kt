@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.mdrlzy.rbkweather.presentation.citylist
 
 import androidx.compose.foundation.Image
@@ -21,11 +23,16 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -57,6 +64,21 @@ fun CityListScreen(
     modifier: Modifier = Modifier,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    var isMenuBottomSheetVisible by rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(viewModel) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                CityListEffect.ShowMenuBottomSheet -> {
+                    isMenuBottomSheetVisible = true
+                }
+                CityListEffect.HideMenuBottomSheet -> {
+                    isMenuBottomSheetVisible = false
+                }
+            }
+        }
+    }
+
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -67,7 +89,7 @@ fun CityListScreen(
             CityListHeader(
                 modifier = Modifier.padding(horizontal = 16.dp),
                 title = stringResource(CoreRString.city_list_title),
-                onClick = { }
+                onClick = viewModel::onMoreClick
             )
             LazyColumn(
                 modifier = Modifier
@@ -98,6 +120,12 @@ fun CityListScreen(
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
                 .padding(horizontal = 28.dp, vertical = 28.dp),
+        )
+    }
+
+    if (isMenuBottomSheetVisible) {
+        CityListMenuBottomSheet(
+            onDismissRequest = viewModel::onMenuDismiss
         )
     }
 }
@@ -300,3 +328,4 @@ private fun CityListSearchBar(
         )
     }
 }
+
