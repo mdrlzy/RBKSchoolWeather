@@ -11,7 +11,7 @@ import androidx.compose.ui.graphics.Color
 import com.mdrlzy.ui.theme.OnWeatherDescription
 
 @Composable
-fun HomeHeader(state: HomeScreenState) {
+fun HomeHeader(state: HomeWeatherPageUiState) {
     Column(
         modifier = Modifier
             .fillMaxWidth(),

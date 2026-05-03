@@ -35,8 +35,9 @@ import com.mdrlzy.ui.theme.OutlineLight
 fun HomeBottomNavBar(
     modifier: Modifier = Modifier,
     onMapClick: () -> Unit = {},
-    onLocationClick: () -> Unit = {},
     onListClick: () -> Unit = {},
+    currentPage: Int = 0,
+    pageCount: Int = 0,
 ) {
     Row(
         modifier = modifier
@@ -54,17 +55,11 @@ fun HomeBottomNavBar(
             )
         }
 
-        HomeCenterPanel(
-            onClick = onLocationClick,
-        ) {
-            Icon(
-                painter = painterResource(CoreRDrawable.cursor),
-                contentDescription = null,
-                modifier = Modifier.size(20.dp),
-                tint = Color.Unspecified,
+        HomeCenterPanel {
+            PagerStatusIndicator(
+                currentPage = currentPage,
+                pageCount = pageCount,
             )
-            Spacer(Modifier.width(2.dp))
-            MockStatusDots()
         }
 
         HomeIconButton(onClick = onListClick) {
@@ -104,7 +99,6 @@ private fun HomeIconButton(
 
 @Composable
 private fun HomeCenterPanel(
-    onClick: () -> Unit,
     content: @Composable RowScope.() -> Unit,
 ) {
     Row(
@@ -119,7 +113,6 @@ private fun HomeCenterPanel(
             .clip(RoundedCornerShape(40.dp))
             .background(BlueGradient)
             .border(1.dp, OutlineLight, RoundedCornerShape(40.dp))
-            .clickable(onClick = onClick)
             .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
@@ -128,22 +121,32 @@ private fun HomeCenterPanel(
 }
 
 @Composable
-private fun MockStatusDots() {
+private fun PagerStatusIndicator(
+    currentPage: Int,
+    pageCount: Int,
+) {
+    val safePageCount = pageCount.coerceAtLeast(1)
+
     Row(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Box(
-            Modifier
-                .size(6.dp)
-                .clip(CircleShape)
-                .background(Color.White.copy(alpha = 0.52f)),
-        )
-        Box(
-            Modifier
-                .size(6.dp)
-                .clip(CircleShape)
-                .background(Color.White.copy(alpha = 0.52f)),
-        )
+        repeat(safePageCount) { index ->
+            if (index == currentPage.coerceIn(0, safePageCount - 1)) {
+                Icon(
+                    painter = painterResource(CoreRDrawable.cursor),
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp),
+                    tint = Color.Unspecified,
+                )
+            } else {
+                Box(
+                    Modifier
+                        .size(6.dp)
+                        .clip(CircleShape)
+                        .background(Color.White.copy(alpha = 0.52f)),
+                )
+            }
+        }
     }
 }

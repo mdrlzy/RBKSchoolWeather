@@ -2,7 +2,7 @@ package com.mdrlzy.rbkweather.presentation.home
 
 import java.time.OffsetDateTime
 
-data class HomeScreenState(
+data class HomeWeatherPageUiState(
     val city: String = "Алматы",
     val description: String = "В основном солнечно",
     val detailedDescription: String = "В основном солнечно",
@@ -25,7 +25,10 @@ data class HomeScreenState(
 
     val sunsetTime: OffsetDateTime = OffsetDateTime.now(),
     val sunriseTime: OffsetDateTime = OffsetDateTime.now(),
+)
 
+data class HomeScreenState(
+    val pages: List<HomeWeatherPageUiState> = emptyList(),
     val isRefreshing: Boolean = false,
     val isInitialized: Boolean = false,
 )
