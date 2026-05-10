@@ -29,6 +29,10 @@ class CityLocationRepositoryImpl(
     private val weatherConditionDao: WeatherConditionDao,
 ) : CityLocationRepository {
 
+    override suspend fun addCity(cityLocation: CityLocation) {
+        cityLocationDao.insertCity(cityLocation.toEntity())
+    }
+
     override suspend fun getCities(): List<CityLocation> {
         return cityLocationDao.getCities().map { it.toDomain() }
     }
@@ -64,6 +68,15 @@ class CityLocationRepositoryImpl(
             }
         }
     }
+}
+
+private fun CityLocation.toEntity(): CityLocationEntity {
+    return CityLocationEntity(
+        id = id,
+        name = name,
+        latitude = latitude,
+        longitude = longitude,
+    )
 }
 
 private fun CityLocationEntity.toDomain(): CityLocation {

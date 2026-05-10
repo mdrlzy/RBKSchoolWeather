@@ -2,7 +2,10 @@
 
 package com.mdrlzy.rbkweather.presentation.home
 
+import android.Manifest
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -38,6 +41,11 @@ fun HomeScreen(
     val pullRefreshState = rememberPullToRefreshState()
     val pagerState = rememberPagerState(pageCount = { state.pages.size })
     val weatherLoadFailedMessage = stringResource(CoreRString.home_toast_weather_load_failed)
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        viewModel.onPermissionLocationResult(granted)
+    }
 
     LaunchedEffect(Unit) {
         viewModel.effect.collect { effect ->
@@ -48,6 +56,18 @@ fun HomeScreen(
                         weatherLoadFailedMessage,
                         Toast.LENGTH_SHORT,
                     ).show()
+                }
+
+                HomeEffect.LocationPermissionDenied -> {
+                    Toast.makeText(
+                        context,
+                        CoreRString.home_toast_location_permission_denied,
+                        Toast.LENGTH_SHORT,
+                    ).show()
+                }
+
+                HomeEffect.RequestLocationPermission -> {
+                    permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
                 }
             }
         }

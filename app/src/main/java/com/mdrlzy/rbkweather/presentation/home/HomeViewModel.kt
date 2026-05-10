@@ -5,7 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.mdrlzy.rbkweather.domain.model.CityLocation
 import com.mdrlzy.rbkweather.domain.model.OneCallWeather
 import com.mdrlzy.rbkweather.domain.repository.CityLocationRepository
+import com.mdrlzy.rbkweather.domain.repository.LocationRepository
 import com.mdrlzy.rbkweather.domain.repository.WeatherRepository
+import com.mdrlzy.rbkweather.domain.usecase.SaveCurrentCityLocationUseCase
+import com.mdrlzy.rbkweather.presentation.location.LocationPermissionHelper
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
@@ -22,11 +25,18 @@ import kotlin.math.roundToInt
 
 sealed interface HomeEffect {
     data object WeatherLoadFailed : HomeEffect
+
+    data object RequestLocationPermission : HomeEffect
+
+    data object LocationPermissionDenied : HomeEffect
 }
 
 class HomeViewModel(
+    private val locationRepository: LocationRepository,
+    private val locationPermissionHelper: LocationPermissionHelper,
     private val cityLocationRepository: CityLocationRepository,
     private val weatherRepository: WeatherRepository,
+    private val saveCurrentCityLocationUseCase: SaveCurrentCityLocationUseCase,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(HomeScreenState())
@@ -40,12 +50,22 @@ class HomeViewModel(
     }
 
     fun onRefresh() {
-        loadWeather()
+        if (locationPermissionHelper.hasFineLocationPermission()) {
+            loadWeather()
+        } else {
+            emitEffect(HomeEffect.RequestLocationPermission)
+        }
     }
 
-    private fun emitEffect(effect: HomeEffect) {
-        viewModelScope.launch {
-            _effect.send(effect)
+    fun onPermissionLocationResult(granted: Boolean) {
+        if (granted) {
+            viewModelScope.launch {
+                saveCurrentCityLocationUseCase()
+
+                loadWeather()
+            }
+        } else {
+            emitEffect(HomeEffect.LocationPermissionDenied)
         }
     }
 
@@ -86,6 +106,12 @@ class HomeViewModel(
                 }
                 emitEffect(HomeEffect.WeatherLoadFailed)
             }
+        }
+    }
+
+    private fun emitEffect(effect: HomeEffect) {
+        viewModelScope.launch {
+            _effect.send(effect)
         }
     }
 }
