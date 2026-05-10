@@ -1,4 +1,4 @@
-package com.mdrlzy.rbkweather.presentation.home
+package com.mdrlzy.rbkweather.presentation.home.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,6 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import com.mdrlzy.rbkweather.presentation.home.model.HomeWeatherPageUiState
 import com.mdrlzy.ui.theme.CoreRString
 import com.mdrlzy.ui.theme.OnWeatherDescription
 

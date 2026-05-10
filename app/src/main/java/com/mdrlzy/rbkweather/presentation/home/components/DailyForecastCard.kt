@@ -1,4 +1,4 @@
-package com.mdrlzy.rbkweather.presentation.home
+package com.mdrlzy.rbkweather.presentation.home.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,16 +25,10 @@ import androidx.compose.ui.unit.dp
 import com.mdrlzy.ui.components.AppHorDivider
 import com.mdrlzy.ui.components.IconTitle
 import com.mdrlzy.ui.components.InfoCard
+import com.mdrlzy.rbkweather.presentation.home.model.DailyForecastUi
 import com.mdrlzy.ui.theme.CoreRDrawable
 import com.mdrlzy.ui.theme.CoreRString
 import com.mdrlzy.ui.theme.OnCardContent
-
-data class DailyForecastUi(
-    val day: String,
-    val minTemp: Int,
-    val maxTemp: Int,
-    val isToday: Boolean = false,
-)
 
 @Composable
 fun DailyForecastCard(dailyItems: List<DailyForecastUi>) {

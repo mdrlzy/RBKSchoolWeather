@@ -1,4 +1,4 @@
-package com.mdrlzy.rbkweather.presentation.home
+package com.mdrlzy.rbkweather.presentation.home.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,17 +19,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.mdrlzy.rbkweather.presentation.home.model.HourlyUiModel
 import com.mdrlzy.ui.components.AppHorDivider
 import com.mdrlzy.ui.components.InfoCard
 import com.mdrlzy.ui.theme.CoreRDrawable
 import com.mdrlzy.ui.theme.CoreRString
 import com.mdrlzy.ui.theme.OnCardContent
-
-data class HourlyUiModel(
-    val hour: String,
-    val temperature: Int,
-    val isCurrent: Boolean = false,
-)
 
 @Composable
 fun HourlyCard(

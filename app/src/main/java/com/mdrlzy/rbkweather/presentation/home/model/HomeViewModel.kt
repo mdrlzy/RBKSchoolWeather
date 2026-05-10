@@ -1,4 +1,4 @@
-package com.mdrlzy.rbkweather.presentation.home
+package com.mdrlzy.rbkweather.presentation.home.model
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -22,14 +22,6 @@ import kotlinx.coroutines.launch
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 import kotlin.math.roundToInt
-
-sealed interface HomeEffect {
-    data object WeatherLoadFailed : HomeEffect
-
-    data object RequestLocationPermission : HomeEffect
-
-    data object LocationPermissionDenied : HomeEffect
-}
 
 class HomeViewModel(
     private val locationRepository: LocationRepository,
