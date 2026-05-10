@@ -1,10 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="current_location">Текущее место</string>
+    <string name="work_location">РАБОТА</string>
+    <string name="city_list_title">Погода</string>
+    <string name="city_list_search_placeholder">Поиск города или аэропорта</string>
+    <string name="city_list_footer_prefix">Подробнее о\u0020</string>
+    <string name="city_list_footer_link_meteo">метеорологических</string>
+    <string name="city_list_footer_between">\u0020и\u0020</string>
+    <string name="city_list_footer_link_carto">картографических</string>
+    <string name="city_list_footer_suffix">\u0020данных</string>
 
     <string name="max_temp">Макс.: %1$s</string>
     <string name="min_temp">мин.: %1$s</string>
     <string name="max_min_temp">Макс.: %1$s, мин.: %2$s</string>
+    <string name="temperature_degrees">%1$d°</string>
+    <string name="percentage_value">%1$d%%</string>
+    <string name="no_value">--</string>
 
     <string name="edit_list">Изменить список</string>
     <string name="notifications">Уведомления</string>
@@ -25,15 +36,35 @@
     <string name="sunset">ЗАКАТ</string>
     <string name="humidity">ВЛАЖНОСТЬ</string>
     <string name="pressure">ДАВЛЕНИЕ</string>
+    <string name="now">Сейчас</string>
+    <string name="today">Сегодня</string>
+    <string name="no_data">Нет данных</string>
+    <string name="unknown_city">Без названия</string>
+    <string name="weather_no_data">Нет данных о погоде</string>
 
     <string name="wind_speed">Ветер</string>
     <string name="wind_gusts">Порывы ветра</string>
     <string name="wind_direction">Направление</string>
     <string name="ten_day_forecast">ПРОГНОЗ НА 10 ДНЕЙ</string>
+    <string name="average_temp_delta">На %1$d°</string>
+    <string name="humidity_dew_point_now">Точка росы сейчас: %1$d°.</string>
+    <string name="sunrise_at">Восход в %1$s</string>
+    <string name="value_with_unit">%1$d %2$s</string>
 
     <string name="km_per_hour">км/ч</string>
     <string name="hpa">гПа</string>
 
     <string name="home_toast_weather_load_failed">Не удалось загрузить погоду</string>
     <string name="home_toast_location_permission_denied">Разрешение на геолокацию не выдано</string>
+
+    <string-array name="cardinal_directions">
+        <item>С</item>
+        <item>СВ</item>
+        <item>В</item>
+        <item>ЮВ</item>
+        <item>Ю</item>
+        <item>ЮЗ</item>
+        <item>З</item>
+        <item>СЗ</item>
+    </string-array>
 </resources>

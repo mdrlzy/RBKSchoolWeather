@@ -4,4 +4,6 @@ import com.mdrlzy.rbkweather.domain.model.LocationData
 
 interface LocationRepository {
     suspend fun getCurrentLocation(): LocationData?
+
+    suspend fun getCityName(locationData: LocationData): String?
 }

@@ -1,5 +1,6 @@
 package com.mdrlzy.ui.theme
 
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 
 val BluePrimary = Color(0xFF377DC3)
@@ -18,10 +19,19 @@ val OnWeatherDescription = Color(0xFFC9FFFA)
 val OnDarkMuted = Color(0xB3FFFFFF)
 val OnDarkDim = Color(0x80FFFFFF)
 
-val OutlineLight = Color(0x40FFFFFF)
+val OutlineLight = Color(0x85FFFFFF)
 val DividerLight = Color(0x1FFFFFFF)
 
 
 val Purple80 = Color(0xFFD0BCFF)
 val PurpleGrey80 = Color(0xFFCCC2DC)
 val Pink80 = Color(0xFFEFB8C8)
+
+val BlueBottomSheet = Color(0xFF424D58)
+
+val BlueGradient = Brush.verticalGradient(
+    colors = listOf(
+        Color(0x000C2741),
+        Color(0x850C2741),
+    ),
+)

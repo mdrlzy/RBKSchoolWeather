@@ -11,7 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.mdrlzy.rbkweather.presentation.home.HomeScreen
+import com.mdrlzy.rbkweather.presentation.citylist.CityListScreen
+import com.mdrlzy.rbkweather.presentation.home.view.HomeScreen
 import com.mdrlzy.rbkweather.presentation.navigation.Destination
 import com.mdrlzy.ui.theme.RBKWeatherTheme
 
@@ -32,7 +33,14 @@ class MainActivity : ComponentActivity() {
                             .padding(innerPadding)
                     ) {
                         composable(Destination.Home.route) {
-                            HomeScreen()
+                            HomeScreen(
+                                onNavigateToCityList = {
+                                    navController.navigate(Destination.CityList.route)
+                                },
+                            )
+                        }
+                        composable(Destination.CityList.route) {
+                            CityListScreen()
                         }
                     }
                 }

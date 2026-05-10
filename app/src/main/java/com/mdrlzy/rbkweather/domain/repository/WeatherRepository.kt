@@ -1,10 +1,10 @@
 package com.mdrlzy.rbkweather.domain.repository
 
-import com.mdrlzy.rbkweather.domain.model.LocationData
+import com.mdrlzy.rbkweather.domain.model.CityLocation
 import com.mdrlzy.rbkweather.domain.model.OneCallWeather
 
 interface WeatherRepository {
     suspend fun getCurrent(
-        locationData: LocationData
+        cityLocation: CityLocation
     ): Result<OneCallWeather>
 }

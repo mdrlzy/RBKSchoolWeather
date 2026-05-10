@@ -1,11 +1,16 @@
-package com.mdrlzy.rbkweather.presentation.home
+package com.mdrlzy.rbkweather.presentation.home.model
 
 import java.time.OffsetDateTime
 
 data class HomeScreenState(
-    val city: String = "Алматы",
-    val description: String = "В основном солнечно",
-    val detailedDescription: String = "В основном солнечно",
+    val pages: List<HomeWeatherPageUiState> = emptyList(),
+    val isRefreshing: Boolean = false,
+    val isInitialized: Boolean = false,
+)
+data class HomeWeatherPageUiState(
+    val city: String = "",
+    val description: String = "",
+    val detailedDescription: String = "",
 
     val hourlyItems: List<HourlyUiModel> = emptyList(),
     val dailyItems: List<DailyForecastUi> = emptyList(),
@@ -20,12 +25,9 @@ data class HomeScreenState(
     val uvIndex: Int = 0,
 
     val windSpeed: Int = 6,
-    val windDirection: String = "",
+    val windDirectionDegrees: Int = 0,
     val windMaxSpeed: Int = 6,
 
     val sunsetTime: OffsetDateTime = OffsetDateTime.now(),
     val sunriseTime: OffsetDateTime = OffsetDateTime.now(),
-
-    val isRefreshing: Boolean = false,
-    val isInitialized: Boolean = false,
 )

@@ -1,4 +1,4 @@
-package com.mdrlzy.rbkweather.presentation.home
+package com.mdrlzy.rbkweather.presentation.home.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,28 +25,10 @@ import androidx.compose.ui.unit.dp
 import com.mdrlzy.ui.components.AppHorDivider
 import com.mdrlzy.ui.components.IconTitle
 import com.mdrlzy.ui.components.InfoCard
+import com.mdrlzy.rbkweather.presentation.home.model.DailyForecastUi
 import com.mdrlzy.ui.theme.CoreRDrawable
 import com.mdrlzy.ui.theme.CoreRString
 import com.mdrlzy.ui.theme.OnCardContent
-
-data class DailyForecastUi(
-    val day: String,
-    val minTemp: Int,
-    val maxTemp: Int,
-)
-
-private val dailyForecastMock = listOf(
-    DailyForecastUi(day = "Сегодня", minTemp = 5, maxTemp = 11),
-    DailyForecastUi(day = "Сб", minTemp = 2, maxTemp = 9),
-    DailyForecastUi(day = "Вс", minTemp = 0, maxTemp = 9),
-    DailyForecastUi(day = "Пн", minTemp = -2, maxTemp = 9),
-    DailyForecastUi(day = "Вт", minTemp = -4, maxTemp = -1),
-    DailyForecastUi(day = "Ср", minTemp = -4, maxTemp = 0),
-    DailyForecastUi(day = "Чт", minTemp = -4, maxTemp = 1),
-    DailyForecastUi(day = "Пт", minTemp = -4, maxTemp = 1),
-    DailyForecastUi(day = "Сб", minTemp = -3, maxTemp = 2),
-    DailyForecastUi(day = "Вс", minTemp = -2, maxTemp = 2),
-)
 
 @Composable
 fun DailyForecastCard(dailyItems: List<DailyForecastUi>) {
@@ -70,7 +52,7 @@ fun DailyForecastCard(dailyItems: List<DailyForecastUi>) {
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = item.day,
+                        text = if (item.isToday) stringResource(CoreRString.today) else item.day,
                         color = OnCardContent,
                         style = MaterialTheme.typography.labelMedium,
                         modifier = Modifier.width(96.dp),
@@ -83,7 +65,7 @@ fun DailyForecastCard(dailyItems: List<DailyForecastUi>) {
                     Spacer(Modifier.width(18.dp))
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = "${item.minTemp}°",
+                            text = stringResource(CoreRString.temperature_degrees, item.minTemp),
                             color = OnCardContent.copy(alpha = 0.52f),
                             style = MaterialTheme.typography.labelMedium,
                         )
@@ -104,14 +86,14 @@ fun DailyForecastCard(dailyItems: List<DailyForecastUi>) {
                             )
                         }
                         Text(
-                            text = "${item.maxTemp}°",
+                            text = stringResource(CoreRString.temperature_degrees, item.maxTemp),
                             color = OnCardContent,
                             style = MaterialTheme.typography.labelMedium,
                         )
                     }
                 }
 
-                if (index != dailyForecastMock.lastIndex) {
+                if (index != dailyItems.lastIndex) {
                     Spacer(Modifier.height(12.dp))
                     AppHorDivider()
                     Spacer(Modifier.height(12.dp))

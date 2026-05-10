@@ -1,31 +1,34 @@
-package com.mdrlzy.rbkweather.presentation.home
+package com.mdrlzy.rbkweather.presentation.home.model
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mdrlzy.rbkweather.domain.model.CityLocation
 import com.mdrlzy.rbkweather.domain.model.OneCallWeather
-import com.mdrlzy.rbkweather.domain.usecase.GetCurrentWeatherUseCase
+import com.mdrlzy.rbkweather.domain.repository.CityLocationRepository
+import com.mdrlzy.rbkweather.domain.repository.LocationRepository
+import com.mdrlzy.rbkweather.domain.repository.WeatherRepository
+import com.mdrlzy.rbkweather.domain.usecase.SaveCurrentCityLocationUseCase
 import com.mdrlzy.rbkweather.presentation.location.LocationPermissionHelper
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 import kotlin.math.roundToInt
 
-sealed interface HomeEffect {
-    data object RequestLocationPermission : HomeEffect
-    data object WeatherLoadFailed : HomeEffect
-    data object LocationPermissionDenied : HomeEffect
-}
-
 class HomeViewModel(
-    private val getCurrentWeatherUseCase: GetCurrentWeatherUseCase,
+    private val locationRepository: LocationRepository,
     private val locationPermissionHelper: LocationPermissionHelper,
+    private val cityLocationRepository: CityLocationRepository,
+    private val weatherRepository: WeatherRepository,
+    private val saveCurrentCityLocationUseCase: SaveCurrentCityLocationUseCase,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(HomeScreenState())
@@ -42,27 +45,19 @@ class HomeViewModel(
         if (locationPermissionHelper.hasFineLocationPermission()) {
             loadWeather()
         } else {
-            requestLocationPermission()
+            emitEffect(HomeEffect.RequestLocationPermission)
         }
     }
 
-    fun onLocationPermissionResult(granted: Boolean) {
+    fun onPermissionLocationResult(granted: Boolean) {
         if (granted) {
-            loadWeather()
+            viewModelScope.launch {
+                saveCurrentCityLocationUseCase()
+
+                loadWeather()
+            }
         } else {
             emitEffect(HomeEffect.LocationPermissionDenied)
-        }
-    }
-
-    private fun requestLocationPermission() {
-        viewModelScope.launch {
-            _effect.send(HomeEffect.RequestLocationPermission)
-        }
-    }
-
-    private fun emitEffect(effect: HomeEffect) {
-        viewModelScope.launch {
-            _effect.send(effect)
         }
     }
 
@@ -76,40 +71,60 @@ class HomeViewModel(
 
         viewModelScope.launch {
             _state.update { it.copy(isRefreshing = true) }
-
-            val homeStateResult = getCurrentWeatherUseCase()
-            homeStateResult.fold(
-                onSuccess = { weather ->
-                    val newState = weather.toHomeScreenState()
-                    _state.value = newState.copy(isRefreshing = false, isInitialized = true)
-                },
-                onFailure = {
-                    _state.update {
-                        it.copy(isRefreshing = false)
-                    }
-                    emitEffect(HomeEffect.WeatherLoadFailed)
+            cityLocationRepository.ensureDefaultCities()
+            val cities = cityLocationRepository.getCities()
+            val weatherPages = cities.map { city ->
+                async {
+                    weatherRepository
+                        .getCurrent(city)
+                        .getOrNull()
+                        ?.toHomeWeatherPageUiState(city)
                 }
-            )
+            }.awaitAll().filterNotNull()
+
+
+            if (weatherPages.isNotEmpty()) {
+                _state.value = HomeScreenState(
+                    pages = weatherPages,
+                    isRefreshing = false,
+                    isInitialized = true,
+                )
+            } else {
+                _state.update {
+                    it.copy(
+                        isRefreshing = false,
+                        isInitialized = false,
+                    )
+                }
+                emitEffect(HomeEffect.WeatherLoadFailed)
+            }
+        }
+    }
+
+    private fun emitEffect(effect: HomeEffect) {
+        viewModelScope.launch {
+            _effect.send(effect)
         }
     }
 }
 
-private fun OneCallWeather.toHomeScreenState(): HomeScreenState {
+private fun OneCallWeather.toHomeWeatherPageUiState(city: CityLocation): HomeWeatherPageUiState {
     val hourFormatter = DateTimeFormatter.ofPattern("HH:mm")
     val dayFormatter = DateTimeFormatter.ofPattern("E", Locale("ru"))
 
     val hourlyItems = buildList {
         add(
             HourlyUiModel(
-                hour = "Сейчас",
-                temperature = "${current.temp.roundToInt()}°",
+                hour = current.dateTime.format(hourFormatter),
+                temperature = current.temp.roundToInt(),
+                isCurrent = true,
             )
         )
         hourly.take(11).forEach { item ->
             add(
                 HourlyUiModel(
                     hour = item.dateTime.format(hourFormatter),
-                    temperature = "${item.temp.roundToInt()}°",
+                    temperature = item.temp.roundToInt(),
                 )
             )
         }
@@ -117,11 +132,12 @@ private fun OneCallWeather.toHomeScreenState(): HomeScreenState {
 
     val dailyItems = daily.take(8).mapIndexed { index, item ->
         DailyForecastUi(
-            day = if (index == 0) "Сегодня" else item.dateTime
+            day = item.dateTime
                 .format(dayFormatter)
                 .replaceFirstChar { it.uppercase() },
             minTemp = item.temp.min.roundToInt(),
             maxTemp = item.temp.max.roundToInt(),
+            isToday = index == 0,
         )
     }
 
@@ -133,8 +149,9 @@ private fun OneCallWeather.toHomeScreenState(): HomeScreenState {
         ?: firstDaily?.weather?.firstOrNull()?.description
         ?: ""
 
-    return HomeScreenState(
-        city = timezone.substringAfterLast('/').replace('_', ' '),
+    return HomeWeatherPageUiState(
+        city = city.name?.takeIf { it.isNotBlank() }
+            ?: timezone.substringAfterLast('/').replace('_', ' '),
         description = shortDescription,
         detailedDescription = shortDescription,
         hourlyItems = hourlyItems,
@@ -147,16 +164,10 @@ private fun OneCallWeather.toHomeScreenState(): HomeScreenState {
         pressure = current.pressure,
         uvIndex = current.uvIndex.roundToInt(),
         windSpeed = current.windSpeed.roundToInt(),
-        windDirection = current.windDeg.toCardinalDirection(),
-        windMaxSpeed = daily.maxOfOrNull { it.windSpeed }?.roundToInt() ?: current.windSpeed.roundToInt(),
+        windDirectionDegrees = current.windDeg,
+        windMaxSpeed = daily.maxOfOrNull { it.windSpeed }?.roundToInt()
+            ?: current.windSpeed.roundToInt(),
         sunsetTime = sunsetTime,
         sunriseTime = sunriseTime,
-        isRefreshing = false,
     )
-}
-
-private fun Int.toCardinalDirection(): String {
-    val directions = listOf("С", "СВ", "В", "ЮВ", "Ю", "ЮЗ", "З", "СЗ")
-    val index = ((this % 360 + 22.5) / 45).toInt() % directions.size
-    return directions[index]
 }

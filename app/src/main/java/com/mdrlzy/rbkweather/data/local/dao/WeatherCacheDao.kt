@@ -8,12 +8,12 @@ import com.mdrlzy.rbkweather.data.local.entity.WeatherCacheEntity
 
 @Dao
 interface WeatherCacheDao {
-    @Query("SELECT * FROM WeatherCacheEntity LIMIT 1")
-    suspend fun getCache(): WeatherCacheEntity?
+    @Query("SELECT * FROM WeatherCacheEntity WHERE locationId = :locationId LIMIT 1")
+    suspend fun getCache(locationId: Long): WeatherCacheEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertCache(entity: WeatherCacheEntity)
 
-    @Query("DELETE FROM WeatherCacheEntity")
-    suspend fun clearCache()
+    @Query("DELETE FROM WeatherCacheEntity WHERE locationId = :locationId")
+    suspend fun clearCache(locationId: Long)
 }
