@@ -5,6 +5,7 @@ import android.content.Context
 import android.location.Address
 import android.location.Geocoder
 import android.os.Build
+import androidx.annotation.RequiresApi
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.mdrlzy.rbkweather.domain.model.LocationData
 import com.mdrlzy.rbkweather.domain.repository.LocationRepository
@@ -17,7 +18,7 @@ import kotlin.coroutines.resume
 class LocationRepositoryImpl(
     private val context: Context,
     private val fusedLocationClient: FusedLocationProviderClient,
-): LocationRepository {
+) : LocationRepository {
 
     @SuppressLint("MissingPermission")
     override suspend fun getCurrentLocation(): LocationData? =
@@ -44,37 +45,50 @@ class LocationRepositoryImpl(
         val geocoder = Geocoder(context, Locale.getDefault())
 
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            suspendCancellableCoroutine { continuation ->
+            getCityNameByGeocodeListener(geocoder, locationData)
+        } else {
+            getCityNameByLegacyGeocoder(geocoder, locationData)
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private suspend fun getCityNameByGeocodeListener(
+        geocoder: Geocoder,
+        locationData: LocationData,
+    ): String? =
+        suspendCancellableCoroutine { continuation ->
+            geocoder.getFromLocation(
+                locationData.latitude,
+                locationData.longitude,
+                1,
+                object : Geocoder.GeocodeListener {
+                    override fun onGeocode(addresses: MutableList<Address>) {
+                        continuation.resume(addresses.firstOrNull()?.cityName)
+                    }
+
+                    override fun onError(errorMessage: String?) {
+                        continuation.resume(null)
+                    }
+                },
+            )
+        }
+
+    private suspend fun getCityNameByLegacyGeocoder(
+        geocoder: Geocoder,
+        locationData: LocationData,
+    ): String? =
+        withContext(Dispatchers.IO) {
+            runCatching {
+                @Suppress("DEPRECATION")
                 geocoder.getFromLocation(
                     locationData.latitude,
                     locationData.longitude,
                     1,
-                    object : Geocoder.GeocodeListener {
-                        override fun onGeocode(addresses: MutableList<Address>) {
-                            continuation.resume(addresses.firstOrNull()?.cityName)
-                        }
-
-                        override fun onError(errorMessage: String?) {
-                            continuation.resume(null)
-                        }
-                    },
                 )
-            }
-        } else {
-            withContext(Dispatchers.IO) {
-                runCatching {
-                    @Suppress("DEPRECATION")
-                    geocoder.getFromLocation(
-                        locationData.latitude,
-                        locationData.longitude,
-                        1,
-                    )
-                        ?.firstOrNull()
-                        ?.cityName
-                }.getOrNull()
-            }
+                    ?.firstOrNull()
+                    ?.cityName
+            }.getOrNull()
         }
-    }
 }
 
 private val Address.cityName: String?
