@@ -32,10 +32,10 @@ fun OneCallResponseDto.toDomain(): OneCallWeather {
         latitude = lat,
         longitude = lon,
         timezone = timezone,
-        timezoneOffsetSeconds = timezone_offset,
-        current = current.toDomain(timezone_offset),
-        hourly = hourly.map { it.toDomain(timezone_offset) },
-        daily = daily.map { it.toDomain(timezone_offset) },
+        timezoneOffsetSeconds = timezoneOffset,
+        current = current.toDomain(timezoneOffset),
+        hourly = hourly.map { it.toDomain(timezoneOffset) },
+        daily = daily.map { it.toDomain(timezoneOffset) },
     )
 }
 
@@ -170,12 +170,12 @@ private fun CurrentDto.toDomain(timezoneOffsetSeconds: Int): CurrentWeather {
         sunrise = sunrise?.toOffsetDateTime(timezoneOffsetSeconds),
         sunset = sunset?.toOffsetDateTime(timezoneOffsetSeconds),
         temp = temp,
-        feelsLike = feels_like,
+        feelsLike = feelsLike,
         pressure = pressure,
         humidity = humidity,
         uvIndex = uvi,
-        windSpeed = wind_speed,
-        windDeg = wind_deg,
+        windSpeed = windSpeed,
+        windDeg = windDeg,
         weather = weather.map { it.toDomain() },
     )
 }
@@ -195,8 +195,8 @@ private fun DailyForecastDto.toDomain(timezoneOffsetSeconds: Int): DailyWeather 
         sunrise = sunrise?.toOffsetDateTime(timezoneOffsetSeconds),
         sunset = sunset?.toOffsetDateTime(timezoneOffsetSeconds),
         temp = temp.toDomain(),
-        windSpeed = wind_speed,
-        windDeg = wind_deg,
+        windSpeed = windSpeed,
+        windDeg = windDeg,
         uvIndex = uvi,
         summary = summary,
         weather = weather.map { it.toDomain() },
