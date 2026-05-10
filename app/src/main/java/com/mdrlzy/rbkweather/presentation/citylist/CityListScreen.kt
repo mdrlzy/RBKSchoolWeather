@@ -42,6 +42,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -56,6 +57,7 @@ import com.mdrlzy.ui.theme.CoreRDrawable
 import com.mdrlzy.ui.theme.CoreRString
 import com.mdrlzy.ui.theme.OnWeatherDescription
 import com.mdrlzy.ui.theme.OutlineLight
+import com.mdrlzy.ui.theme.RBKWeatherTheme
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -79,6 +81,25 @@ fun CityListScreen(
         }
     }
 
+    CityListScreenContent(
+        state = state,
+        modifier = modifier,
+        onMoreClick = viewModel::onMoreClick,
+    )
+
+    if (isMenuBottomSheetVisible) {
+        CityListMenuBottomSheet(
+            onDismissRequest = viewModel::onMenuDismiss
+        )
+    }
+}
+
+@Composable
+private fun CityListScreenContent(
+    state: CityListScreenState,
+    modifier: Modifier = Modifier,
+    onMoreClick: () -> Unit,
+) {
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -89,7 +110,7 @@ fun CityListScreen(
             CityListHeader(
                 modifier = Modifier.padding(horizontal = 16.dp),
                 title = stringResource(CoreRString.city_list_title),
-                onClick = viewModel::onMoreClick
+                onClick = onMoreClick,
             )
             LazyColumn(
                 modifier = Modifier
@@ -120,12 +141,6 @@ fun CityListScreen(
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
                 .padding(horizontal = 28.dp, vertical = 28.dp),
-        )
-    }
-
-    if (isMenuBottomSheetVisible) {
-        CityListMenuBottomSheet(
-            onDismissRequest = viewModel::onMenuDismiss
         )
     }
 }
@@ -346,6 +361,38 @@ private fun CityListSearchBar(
             contentDescription = null,
             tint = Color.Unspecified,
             modifier = Modifier.size(20.dp),
+        )
+    }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF2B4F73)
+@Composable
+private fun CityListScreenPreview() {
+    RBKWeatherTheme {
+        CityListScreenContent(
+            state = CityListScreenState(
+                cities = listOf(
+                    CityWeatherCardUiItem(
+                        id = 1L,
+                        cityName = "Astana",
+                        subtitle = "18:09",
+                        condition = "Clear",
+                        temperature = 18,
+                        minTemperature = 12,
+                        maxTemperature = 21,
+                    ),
+                    CityWeatherCardUiItem(
+                        id = 2L,
+                        cityName = "Almaty",
+                        subtitle = "18:09",
+                        condition = "Cloudy",
+                        temperature = 15,
+                        minTemperature = 9,
+                        maxTemperature = 17,
+                    ),
+                ),
+            ),
+            onMoreClick = {},
         )
     }
 }

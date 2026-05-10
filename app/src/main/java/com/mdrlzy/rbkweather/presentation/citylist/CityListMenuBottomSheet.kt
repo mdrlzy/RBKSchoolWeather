@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
@@ -26,12 +27,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.material3.Icon
 import com.mdrlzy.ui.components.AppHorDivider
 import com.mdrlzy.ui.theme.BlueBottomSheet
 import com.mdrlzy.ui.theme.CoreRDrawable
 import com.mdrlzy.ui.theme.CoreRString
+import com.mdrlzy.ui.theme.RBKWeatherTheme
 
 @Composable
 fun CityListMenuBottomSheet(
@@ -56,53 +58,60 @@ fun CityListMenuBottomSheet(
         },
         shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
     ) {
-        Column(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Spacer(Modifier.height(24.dp))
-            CityListMenuItem(
-                iconRes = CoreRDrawable.pencil,
-                title = stringResource(CoreRString.edit_list),
-                onClick = {},
-            )
-            Spacer(Modifier.height(20.dp))
-            CityListMenuItem(
-                iconRes = CoreRDrawable.bell,
-                title = stringResource(CoreRString.notifications),
-                onClick = {},
-            )
-            Spacer(Modifier.height(16.dp))
-            AppHorDivider(Modifier.padding(horizontal = 16.dp))
-            Spacer(Modifier.height(16.dp))
-            CityListMenuItem(
-                iconRes = CoreRDrawable.celsius,
-                title = stringResource(CoreRString.celsius),
-                onClick = {},
-            )
-            Spacer(Modifier.height(20.dp))
-            CityListMenuItem(
-                iconRes = CoreRDrawable.fahrenheit,
-                title = stringResource(CoreRString.fahrenheit),
-                onClick = {},
-            )
-            Spacer(Modifier.height(16.dp))
-            AppHorDivider(Modifier.padding(horizontal = 16.dp))
-            Spacer(Modifier.height(16.dp))
-            CityListMenuItem(
-                iconRes = CoreRDrawable.colums,
-                title = stringResource(CoreRString.units),
-                onClick = {},
-            )
-            Spacer(Modifier.height(16.dp))
-            AppHorDivider(Modifier.padding(horizontal = 16.dp))
-            Spacer(Modifier.height(16.dp))
-            CityListMenuItem(
-                iconRes = CoreRDrawable.message,
-                title = stringResource(CoreRString.report_problem),
-                onClick = {},
-            )
-            Spacer(Modifier.height(24.dp))
-        }
+        CityListMenuContent()
+    }
+}
+
+@Composable
+private fun CityListMenuContent(
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier.fillMaxWidth()
+    ) {
+        Spacer(Modifier.height(24.dp))
+        CityListMenuItem(
+            iconRes = CoreRDrawable.pencil,
+            title = stringResource(CoreRString.edit_list),
+            onClick = {},
+        )
+        Spacer(Modifier.height(20.dp))
+        CityListMenuItem(
+            iconRes = CoreRDrawable.bell,
+            title = stringResource(CoreRString.notifications),
+            onClick = {},
+        )
+        Spacer(Modifier.height(16.dp))
+        AppHorDivider(Modifier.padding(horizontal = 16.dp))
+        Spacer(Modifier.height(16.dp))
+        CityListMenuItem(
+            iconRes = CoreRDrawable.celsius,
+            title = stringResource(CoreRString.celsius),
+            onClick = {},
+        )
+        Spacer(Modifier.height(20.dp))
+        CityListMenuItem(
+            iconRes = CoreRDrawable.fahrenheit,
+            title = stringResource(CoreRString.fahrenheit),
+            onClick = {},
+        )
+        Spacer(Modifier.height(16.dp))
+        AppHorDivider(Modifier.padding(horizontal = 16.dp))
+        Spacer(Modifier.height(16.dp))
+        CityListMenuItem(
+            iconRes = CoreRDrawable.colums,
+            title = stringResource(CoreRString.units),
+            onClick = {},
+        )
+        Spacer(Modifier.height(16.dp))
+        AppHorDivider(Modifier.padding(horizontal = 16.dp))
+        Spacer(Modifier.height(16.dp))
+        CityListMenuItem(
+            iconRes = CoreRDrawable.message,
+            title = stringResource(CoreRString.report_problem),
+            onClick = {},
+        )
+        Spacer(Modifier.height(24.dp))
     }
 }
 
@@ -116,6 +125,7 @@ private fun CityListMenuItem(
     Row(
         modifier = modifier
             .fillMaxWidth()
+            .clickable(onClick = onClick)
             .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -133,5 +143,20 @@ private fun CityListMenuItem(
             color = Color.White,
             style = MaterialTheme.typography.bodyLarge,
         )
+    }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF2B4F73)
+@Composable
+private fun CityListMenuContentPreview() {
+    RBKWeatherTheme {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
+                .background(BlueBottomSheet)
+        ) {
+            CityListMenuContent()
+        }
     }
 }
