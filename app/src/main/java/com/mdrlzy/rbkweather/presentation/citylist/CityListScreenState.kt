@@ -2,11 +2,12 @@ package com.mdrlzy.rbkweather.presentation.citylist
 
 data class CityWeatherCardUiItem(
     val id: Long,
-    val cityName: String,
-    val subtitle: String,
-    val condition: String,
-    val temperature: String,
-    val temperatureRange: String,
+    val cityName: String?,
+    val subtitle: String?,
+    val condition: String?,
+    val temperature: Int?,
+    val minTemperature: Int?,
+    val maxTemperature: Int?,
 )
 
 data class CityListScreenState(

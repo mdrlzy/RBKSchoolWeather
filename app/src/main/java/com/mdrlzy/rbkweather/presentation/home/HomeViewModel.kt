@@ -123,15 +123,16 @@ private fun OneCallWeather.toHomeWeatherPageUiState(city: CityLocation): HomeWea
     val hourlyItems = buildList {
         add(
             HourlyUiModel(
-                hour = "Сейчас",
-                temperature = "${current.temp.roundToInt()}°",
+                hour = current.dateTime.format(hourFormatter),
+                temperature = current.temp.roundToInt(),
+                isCurrent = true,
             )
         )
         hourly.take(11).forEach { item ->
             add(
                 HourlyUiModel(
                     hour = item.dateTime.format(hourFormatter),
-                    temperature = "${item.temp.roundToInt()}°",
+                    temperature = item.temp.roundToInt(),
                 )
             )
         }
@@ -139,11 +140,12 @@ private fun OneCallWeather.toHomeWeatherPageUiState(city: CityLocation): HomeWea
 
     val dailyItems = daily.take(8).mapIndexed { index, item ->
         DailyForecastUi(
-            day = if (index == 0) "Сегодня" else item.dateTime
+            day = item.dateTime
                 .format(dayFormatter)
                 .replaceFirstChar { it.uppercase() },
             minTemp = item.temp.min.roundToInt(),
             maxTemp = item.temp.max.roundToInt(),
+            isToday = index == 0,
         )
     }
 
@@ -170,16 +172,10 @@ private fun OneCallWeather.toHomeWeatherPageUiState(city: CityLocation): HomeWea
         pressure = current.pressure,
         uvIndex = current.uvIndex.roundToInt(),
         windSpeed = current.windSpeed.roundToInt(),
-        windDirection = current.windDeg.toCardinalDirection(),
+        windDirectionDegrees = current.windDeg,
         windMaxSpeed = daily.maxOfOrNull { it.windSpeed }?.roundToInt()
             ?: current.windSpeed.roundToInt(),
         sunsetTime = sunsetTime,
         sunriseTime = sunriseTime,
     )
-}
-
-private fun Int.toCardinalDirection(): String {
-    val directions = listOf("С", "СВ", "В", "ЮВ", "Ю", "ЮЗ", "З", "СЗ")
-    val index = ((this % 360 + 22.5) / 45).toInt() % directions.size
-    return directions[index]
 }

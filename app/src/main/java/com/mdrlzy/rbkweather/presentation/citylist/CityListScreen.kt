@@ -177,6 +177,27 @@ private fun CityWeatherCard(
     modifier: Modifier = Modifier,
 ) {
     val shape = RoundedCornerShape(22.dp)
+    val noValue = stringResource(CoreRString.no_value)
+    val cityName = item.cityName ?: stringResource(CoreRString.unknown_city)
+    val subtitle = item.subtitle ?: stringResource(CoreRString.no_data)
+    val condition = item.condition ?: stringResource(CoreRString.weather_no_data)
+    val temperature = if (item.temperature != null) {
+        stringResource(CoreRString.temperature_degrees, item.temperature)
+    } else {
+        noValue
+    }
+    val minTemperature = if (item.minTemperature != null) {
+        stringResource(CoreRString.temperature_degrees, item.minTemperature)
+    } else {
+        noValue
+    }
+    val maxTemperature = if (item.maxTemperature != null) {
+        stringResource(CoreRString.temperature_degrees, item.maxTemperature)
+    } else {
+        noValue
+    }
+    val temperatureRange = stringResource(CoreRString.max_min_temp, maxTemperature, minTemperature)
+
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -202,19 +223,19 @@ private fun CityWeatherCard(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = item.cityName,
+                        text = cityName,
                         color = Color.White,
                         style = MaterialTheme.typography.titleLarge,
                     )
                     Spacer(Modifier.height(2.dp))
                     Text(
-                        text = item.subtitle,
+                        text = subtitle,
                         color = OnWeatherDescription,
                         style = MaterialTheme.typography.bodySmall,
                     )
                 }
                 Text(
-                    text = item.temperature,
+                    text = temperature,
                     color = Color.White,
                     fontSize = 48.sp,
                     fontWeight = FontWeight.W300,
@@ -228,13 +249,13 @@ private fun CityWeatherCard(
                 verticalAlignment = Alignment.Bottom,
             ) {
                 Text(
-                    text = item.condition,
+                    text = condition,
                     color = OnWeatherDescription,
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.weight(1f),
                 )
                 Text(
-                    text = item.temperatureRange,
+                    text = temperatureRange,
                     color = Color.White,
                     fontSize = 10.sp,
                     fontWeight = FontWeight.W700,

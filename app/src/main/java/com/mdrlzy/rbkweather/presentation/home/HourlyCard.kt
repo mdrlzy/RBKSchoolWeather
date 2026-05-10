@@ -17,25 +17,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.mdrlzy.ui.components.AppHorDivider
 import com.mdrlzy.ui.components.InfoCard
 import com.mdrlzy.ui.theme.CoreRDrawable
+import com.mdrlzy.ui.theme.CoreRString
 import com.mdrlzy.ui.theme.OnCardContent
 
 data class HourlyUiModel(
     val hour: String,
-    val temperature: String,
-)
-
-private val mockHourlyItems = listOf(
-    HourlyUiModel(hour = "Сейчас", temperature = "10°"),
-    HourlyUiModel(hour = "17:00", temperature = "9°"),
-    HourlyUiModel(hour = "18:00", temperature = "8°"),
-    HourlyUiModel(hour = "19:00", temperature = "7°"),
-    HourlyUiModel(hour = "20:00", temperature = "6°"),
-    HourlyUiModel(hour = "19:00", temperature = "7°"),
-    HourlyUiModel(hour = "20:00", temperature = "6°"),
+    val temperature: Int,
+    val isCurrent: Boolean = false,
 )
 
 @Composable
@@ -66,7 +59,7 @@ fun HourlyCard(
                 items(hourItems) { item ->
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            text = item.hour,
+                            text = if (item.isCurrent) stringResource(CoreRString.now) else item.hour,
                             style = MaterialTheme.typography.bodyLarge,
                             color = OnCardContent
                         )
@@ -77,7 +70,7 @@ fun HourlyCard(
                         )
                         Spacer(Modifier.height(12.dp))
                         Text(
-                            item.temperature,
+                            stringResource(CoreRString.temperature_degrees, item.temperature),
                             style = MaterialTheme.typography.bodyLarge,
                             color = OnCardContent
                         )

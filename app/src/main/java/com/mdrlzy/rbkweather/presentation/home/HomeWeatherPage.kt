@@ -61,7 +61,7 @@ fun HomeWeatherPage(
             WindCard(
                 windSpeed = pageState.windSpeed,
                 windMaxSpeed = pageState.windMaxSpeed,
-                windDirection = pageState.windDirection,
+                windDirectionDegrees = pageState.windDirectionDegrees,
             )
         }
 

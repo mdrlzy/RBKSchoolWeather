@@ -3,9 +3,9 @@ package com.mdrlzy.rbkweather.presentation.home
 import java.time.OffsetDateTime
 
 data class HomeWeatherPageUiState(
-    val city: String = "Алматы",
-    val description: String = "В основном солнечно",
-    val detailedDescription: String = "В основном солнечно",
+    val city: String = "",
+    val description: String = "",
+    val detailedDescription: String = "",
 
     val hourlyItems: List<HourlyUiModel> = emptyList(),
     val dailyItems: List<DailyForecastUi> = emptyList(),
@@ -20,7 +20,7 @@ data class HomeWeatherPageUiState(
     val uvIndex: Int = 0,
 
     val windSpeed: Int = 6,
-    val windDirection: String = "",
+    val windDirectionDegrees: Int = 0,
     val windMaxSpeed: Int = 6,
 
     val sunsetTime: OffsetDateTime = OffsetDateTime.now(),

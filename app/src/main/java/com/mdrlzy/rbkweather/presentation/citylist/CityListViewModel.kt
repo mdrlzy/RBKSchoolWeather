@@ -63,18 +63,16 @@ private fun CityWeatherSummary.toUi(): CityWeatherCardUiItem {
         DateTimeFormatter.ofPattern("HH:mm")
             .format(Instant.ofEpochSecond(currentDateTimeEpochSeconds).atOffset(offset))
     } else {
-        "Нет данных"
+        null
     }
-    val currentTempText = currentTemp?.roundToInt()?.let { "$it°" } ?: "--"
-    val minText = minTemp?.roundToInt()?.let { "$it°" } ?: "--"
-    val maxText = maxTemp?.roundToInt()?.let { "$it°" } ?: "--"
 
     return CityWeatherCardUiItem(
         id = id,
-        cityName = cityName ?: "Без названия",
+        cityName = cityName,
         subtitle = subtitle,
-        condition = currentConditionDescription ?: "Нет данных о погоде",
-        temperature = currentTempText,
-        temperatureRange = "Макс.: $maxText, мин.: $minText",
+        condition = currentConditionDescription,
+        temperature = currentTemp?.roundToInt(),
+        minTemperature = minTemp?.roundToInt(),
+        maxTemperature = maxTemp?.roundToInt(),
     )
 }
