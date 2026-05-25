@@ -37,6 +37,7 @@ import com.mdrlzy.ui.theme.RBKWeatherTheme
 
 @Composable
 fun CityListMenuBottomSheet(
+    onTemperatureUnitClick: (Boolean) -> Unit,
     onDismissRequest: () -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -58,12 +59,15 @@ fun CityListMenuBottomSheet(
         },
         shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
     ) {
-        CityListMenuContent()
+        CityListMenuContent(
+            onTemperatureUnitClick = onTemperatureUnitClick,
+        )
     }
 }
 
 @Composable
 private fun CityListMenuContent(
+    onTemperatureUnitClick: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -87,13 +91,13 @@ private fun CityListMenuContent(
         CityListMenuItem(
             iconRes = CoreRDrawable.celsius,
             title = stringResource(CoreRString.celsius),
-            onClick = {},
+            onClick = { onTemperatureUnitClick(true) },
         )
         Spacer(Modifier.height(20.dp))
         CityListMenuItem(
             iconRes = CoreRDrawable.fahrenheit,
             title = stringResource(CoreRString.fahrenheit),
-            onClick = {},
+            onClick = { onTemperatureUnitClick(false) },
         )
         Spacer(Modifier.height(16.dp))
         AppHorDivider(Modifier.padding(horizontal = 16.dp))
@@ -156,7 +160,9 @@ private fun CityListMenuContentPreview() {
                 .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
                 .background(BlueBottomSheet)
         ) {
-            CityListMenuContent()
+            CityListMenuContent(
+                onTemperatureUnitClick = {},
+            )
         }
     }
 }

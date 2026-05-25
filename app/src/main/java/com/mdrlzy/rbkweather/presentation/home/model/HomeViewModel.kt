@@ -6,18 +6,22 @@ import com.mdrlzy.rbkweather.domain.model.CityLocation
 import com.mdrlzy.rbkweather.domain.model.OneCallWeather
 import com.mdrlzy.rbkweather.domain.repository.CityLocationRepository
 import com.mdrlzy.rbkweather.domain.repository.LocationRepository
+import com.mdrlzy.rbkweather.domain.repository.Preferences
 import com.mdrlzy.rbkweather.domain.repository.WeatherRepository
 import com.mdrlzy.rbkweather.domain.usecase.SaveCurrentCityLocationUseCase
 import com.mdrlzy.rbkweather.presentation.location.LocationPermissionHelper
+import com.mdrlzy.rbkweather.presentation.mapper.toDisplayTemperature
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -29,6 +33,7 @@ class HomeViewModel(
     private val cityLocationRepository: CityLocationRepository,
     private val weatherRepository: WeatherRepository,
     private val saveCurrentCityLocationUseCase: SaveCurrentCityLocationUseCase,
+    private val preferences: Preferences,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(HomeScreenState())
@@ -37,7 +42,15 @@ class HomeViewModel(
     private val _effect = Channel<HomeEffect>(Channel.BUFFERED)
     val effect: Flow<HomeEffect> = _effect.receiveAsFlow()
 
+    private var weatherPageSources: List<Pair<CityLocation, OneCallWeather>> = emptyList()
+
     init {
+        preferences.isCelciusNotFarenheit.onEach { isCelcius ->
+            _state.update { it.copy(isCelciusNotFarenheit = isCelcius) }
+            updateWeatherPages()
+        }.launchIn(viewModelScope)
+
+
         onRefresh()
     }
 
@@ -73,21 +86,23 @@ class HomeViewModel(
             _state.update { it.copy(isRefreshing = true) }
             cityLocationRepository.ensureDefaultCities()
             val cities = cityLocationRepository.getCities()
-            val weatherPages = cities.map { city ->
+            val weatherSources = cities.map { city ->
                 async {
                     weatherRepository
                         .getCurrent(city)
                         .getOrNull()
-                        ?.toHomeWeatherPageUiState(city)
+                        ?.let { weather -> city to weather }
                 }
             }.awaitAll().filterNotNull()
 
 
-            if (weatherPages.isNotEmpty()) {
+            if (weatherSources.isNotEmpty()) {
+                weatherPageSources = weatherSources
                 _state.value = HomeScreenState(
-                    pages = weatherPages,
+                    pages = weatherSources.toHomeWeatherPageUiStates(_state.value.isCelciusNotFarenheit),
                     isRefreshing = false,
                     isInitialized = true,
+                    isCelciusNotFarenheit = _state.value.isCelciusNotFarenheit,
                 )
             } else {
                 _state.update {
@@ -106,9 +121,31 @@ class HomeViewModel(
             _effect.send(effect)
         }
     }
+
+    private fun updateWeatherPages() {
+        if (weatherPageSources.isEmpty()) return
+
+        _state.update {
+            it.copy(pages = weatherPageSources.toHomeWeatherPageUiStates(it.isCelciusNotFarenheit))
+        }
+    }
 }
 
-private fun OneCallWeather.toHomeWeatherPageUiState(city: CityLocation): HomeWeatherPageUiState {
+private fun List<Pair<CityLocation, OneCallWeather>>.toHomeWeatherPageUiStates(
+    isCelciusNotFarenheit: Boolean,
+): List<HomeWeatherPageUiState> {
+    return map { (city, weather) ->
+        weather.toHomeWeatherPageUiState(
+            city = city,
+            isCelciusNotFarenheit = isCelciusNotFarenheit,
+        )
+    }
+}
+
+private fun OneCallWeather.toHomeWeatherPageUiState(
+    city: CityLocation,
+    isCelciusNotFarenheit: Boolean,
+): HomeWeatherPageUiState {
     val hourFormatter = DateTimeFormatter.ofPattern("HH:mm")
     val dayFormatter = DateTimeFormatter.ofPattern("E", Locale("ru"))
 
@@ -116,7 +153,7 @@ private fun OneCallWeather.toHomeWeatherPageUiState(city: CityLocation): HomeWea
         add(
             HourlyUiModel(
                 hour = current.dateTime.format(hourFormatter),
-                temperature = current.temp.roundToInt(),
+                temperature = current.temp.toDisplayTemperature(isCelciusNotFarenheit),
                 isCurrent = true,
             )
         )
@@ -124,7 +161,7 @@ private fun OneCallWeather.toHomeWeatherPageUiState(city: CityLocation): HomeWea
             add(
                 HourlyUiModel(
                     hour = item.dateTime.format(hourFormatter),
-                    temperature = item.temp.roundToInt(),
+                    temperature = item.temp.toDisplayTemperature(isCelciusNotFarenheit),
                 )
             )
         }
@@ -135,8 +172,8 @@ private fun OneCallWeather.toHomeWeatherPageUiState(city: CityLocation): HomeWea
             day = item.dateTime
                 .format(dayFormatter)
                 .replaceFirstChar { it.uppercase() },
-            minTemp = item.temp.min.roundToInt(),
-            maxTemp = item.temp.max.roundToInt(),
+            minTemp = item.temp.min.toDisplayTemperature(isCelciusNotFarenheit),
+            maxTemp = item.temp.max.toDisplayTemperature(isCelciusNotFarenheit),
             isToday = index == 0,
         )
     }
@@ -156,10 +193,12 @@ private fun OneCallWeather.toHomeWeatherPageUiState(city: CityLocation): HomeWea
         detailedDescription = shortDescription,
         hourlyItems = hourlyItems,
         dailyItems = dailyItems,
-        temp = current.temp.roundToInt(),
-        minTemp = firstDaily?.temp?.min?.roundToInt() ?: current.temp.roundToInt(),
-        maxTemp = firstDaily?.temp?.max?.roundToInt() ?: current.temp.roundToInt(),
-        feelsLike = current.feelsLike.roundToInt(),
+        temp = current.temp.toDisplayTemperature(isCelciusNotFarenheit),
+        minTemp = firstDaily?.temp?.min?.toDisplayTemperature(isCelciusNotFarenheit)
+            ?: current.temp.toDisplayTemperature(isCelciusNotFarenheit),
+        maxTemp = firstDaily?.temp?.max?.toDisplayTemperature(isCelciusNotFarenheit)
+            ?: current.temp.toDisplayTemperature(isCelciusNotFarenheit),
+        feelsLike = current.feelsLike.toDisplayTemperature(isCelciusNotFarenheit),
         humidity = current.humidity,
         pressure = current.pressure,
         uvIndex = current.uvIndex.roundToInt(),

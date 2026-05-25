@@ -6,6 +6,7 @@ data class HomeScreenState(
     val pages: List<HomeWeatherPageUiState> = emptyList(),
     val isRefreshing: Boolean = false,
     val isInitialized: Boolean = false,
+    val isCelciusNotFarenheit: Boolean = true,
 )
 data class HomeWeatherPageUiState(
     val city: String = "",

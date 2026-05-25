@@ -10,11 +10,15 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.pulltorefresh.pullToRefresh
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -86,21 +90,30 @@ fun HomeScreen(
         return
     }
 
-    Box(
+    PullToRefreshBox(
         modifier = Modifier
-            .fillMaxSize()
-            .pullToRefresh(
+            .fillMaxSize(),
+        state = pullRefreshState,
+        isRefreshing = state.isRefreshing,
+        onRefresh = viewModel::onRefresh,
+        indicator = {
+            PullToRefreshDefaults.Indicator(
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = 16.dp),
                 state = pullRefreshState,
                 isRefreshing = state.isRefreshing,
-                onRefresh = { viewModel.onRefresh() }
+                containerColor = MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.colorScheme.onPrimary,
             )
+        },
     ) {
 
         Image(
             modifier = Modifier.fillMaxSize(),
             painter = painterResource(CoreRDrawable.bg_clear_day),
             contentDescription = null,
-            contentScale = ContentScale.FillWidth,
+            contentScale = ContentScale.FillBounds,
         )
 
         if (state.pages.isNotEmpty()) {
@@ -109,14 +122,18 @@ fun HomeScreen(
                 modifier = Modifier.fillMaxSize(),
                 beyondViewportPageCount = 1,
             ) { page ->
-                HomeWeatherPage(pageState = state.pages[page])
+                HomeWeatherPage(
+                    pageState = state.pages[page],
+                    isCelciusNotFarenheit = state.isCelciusNotFarenheit,
+                )
             }
         }
 
         HomeBottomNavBar(
             modifier = Modifier
                 .fillMaxWidth()
-                .align(Alignment.BottomCenter),
+                .align(Alignment.BottomCenter)
+                .navigationBarsPadding(),
             onListClick = onNavigateToCityList,
             currentPage = pagerState.currentPage,
             pageCount = state.pages.size,

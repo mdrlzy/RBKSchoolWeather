@@ -12,9 +12,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -23,6 +28,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -39,6 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -85,10 +92,12 @@ fun CityListScreen(
         state = state,
         modifier = modifier,
         onMoreClick = viewModel::onMoreClick,
+        onSearchQueryChange = viewModel::onSearchQueryChange,
     )
 
     if (isMenuBottomSheetVisible) {
         CityListMenuBottomSheet(
+            onTemperatureUnitClick = viewModel::onTemperatureUnitClick,
             onDismissRequest = viewModel::onMenuDismiss
         )
     }
@@ -99,13 +108,22 @@ private fun CityListScreenContent(
     state: CityListScreenState,
     modifier: Modifier = Modifier,
     onMoreClick: () -> Unit,
+    onSearchQueryChange: (String) -> Unit,
 ) {
+    val navigationBarBottomPadding = WindowInsets.navigationBars
+        .asPaddingValues()
+        .calculateBottomPadding()
+
     Box(
         modifier = modifier
             .fillMaxSize()
             .background(AppBackground),
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .statusBarsPadding()
+        ) {
             Spacer(Modifier.height(12.dp))
             CityListHeader(
                 modifier = Modifier.padding(horizontal = 16.dp),
@@ -114,19 +132,23 @@ private fun CityListScreenContent(
             )
             LazyColumn(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .statusBarsPadding(),
+                    .fillMaxSize(),
                 contentPadding = PaddingValues(
-                    horizontal = 16.dp,
-                    vertical = 12.dp
+                    start = 16.dp,
+                    top = 12.dp,
+                    end = 16.dp,
+                    bottom = 112.dp + navigationBarBottomPadding,
                 ),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 items(
-                    items = state.cities,
+                    items = state.filteredCities,
                     key = { it.id },
                 ) { city ->
-                    CityWeatherCard(item = city)
+                    CityWeatherCard(
+                        item = city,
+                        isCelciusNotFarenheit = state.isCelciusNotFarenheit,
+                    )
                 }
                 item {
                     Spacer(Modifier.height(8.dp))
@@ -136,10 +158,14 @@ private fun CityListScreenContent(
         }
 
         CityListSearchBar(
+            value = state.searchQuery,
+            onValueChange = onSearchQueryChange,
             placeholder = stringResource(CoreRString.city_list_search_placeholder),
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
+                .navigationBarsPadding()
+                .imePadding()
                 .padding(horizontal = 28.dp, vertical = 28.dp),
         )
     }
@@ -189,6 +215,7 @@ private fun CityListHeader(
 @Composable
 private fun CityWeatherCard(
     item: CityWeatherCardUiItem,
+    isCelciusNotFarenheit: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val shape = RoundedCornerShape(22.dp)
@@ -196,18 +223,25 @@ private fun CityWeatherCard(
     val cityName = item.cityName ?: stringResource(CoreRString.unknown_city)
     val subtitle = item.subtitle ?: stringResource(CoreRString.no_data)
     val condition = item.condition ?: stringResource(CoreRString.weather_no_data)
+    val temperatureUnit = stringResource(
+        if (isCelciusNotFarenheit) {
+            CoreRString.degrees_celsius_symbol
+        } else {
+            CoreRString.degrees_fahrenheit_symbol
+        }
+    )
     val temperature = if (item.temperature != null) {
-        stringResource(CoreRString.temperature_degrees, item.temperature)
+        stringResource(CoreRString.temperature_with_unit, item.temperature, temperatureUnit)
     } else {
         noValue
     }
     val minTemperature = if (item.minTemperature != null) {
-        stringResource(CoreRString.temperature_degrees, item.minTemperature)
+        stringResource(CoreRString.temperature_with_unit, item.minTemperature, temperatureUnit)
     } else {
         noValue
     }
     val maxTemperature = if (item.maxTemperature != null) {
-        stringResource(CoreRString.temperature_degrees, item.maxTemperature)
+        stringResource(CoreRString.temperature_with_unit, item.maxTemperature, temperatureUnit)
     } else {
         noValue
     }
@@ -324,6 +358,8 @@ private fun CityListFooter(
 
 @Composable
 private fun CityListSearchBar(
+    value: String,
+    onValueChange: (String) -> Unit,
     placeholder: String,
     modifier: Modifier = Modifier,
 ) {
@@ -349,11 +385,23 @@ private fun CityListSearchBar(
             modifier = Modifier.size(20.dp),
         )
         Spacer(Modifier.size(12.dp))
-        Text(
-            text = placeholder,
-            color = OutlineLight,
-            style = MaterialTheme.typography.bodyLarge,
+        BasicTextField(
+            value = value,
+            onValueChange = onValueChange,
+            singleLine = true,
+            textStyle = MaterialTheme.typography.bodyLarge.copy(color = Color.White),
+            cursorBrush = SolidColor(Color.White),
             modifier = Modifier.weight(1f),
+            decorationBox = { innerTextField ->
+                if (value.isEmpty()) {
+                    Text(
+                        text = placeholder,
+                        color = OutlineLight,
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
+                }
+                innerTextField()
+            },
         )
         Spacer(Modifier.width(8.dp))
         Icon(
@@ -369,30 +417,34 @@ private fun CityListSearchBar(
 @Composable
 private fun CityListScreenPreview() {
     RBKWeatherTheme {
+        val cities = listOf(
+            CityWeatherCardUiItem(
+                id = 1L,
+                cityName = "Astana",
+                subtitle = "18:09",
+                condition = "Clear",
+                temperature = 18,
+                minTemperature = 12,
+                maxTemperature = 21,
+            ),
+            CityWeatherCardUiItem(
+                id = 2L,
+                cityName = "Almaty",
+                subtitle = "18:09",
+                condition = "Cloudy",
+                temperature = 15,
+                minTemperature = 9,
+                maxTemperature = 17,
+            ),
+        )
+
         CityListScreenContent(
             state = CityListScreenState(
-                cities = listOf(
-                    CityWeatherCardUiItem(
-                        id = 1L,
-                        cityName = "Astana",
-                        subtitle = "18:09",
-                        condition = "Clear",
-                        temperature = 18,
-                        minTemperature = 12,
-                        maxTemperature = 21,
-                    ),
-                    CityWeatherCardUiItem(
-                        id = 2L,
-                        cityName = "Almaty",
-                        subtitle = "18:09",
-                        condition = "Cloudy",
-                        temperature = 15,
-                        minTemperature = 9,
-                        maxTemperature = 17,
-                    ),
-                ),
+                allCities = cities,
+                filteredCities = cities,
             ),
             onMoreClick = {},
+            onSearchQueryChange = {},
         )
     }
 }

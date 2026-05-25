@@ -11,10 +11,16 @@ data class CityWeatherCardUiItem(
 )
 
 data class CityListScreenState(
-    val cities: List<CityWeatherCardUiItem>,
+    val allCities: List<CityWeatherCardUiItem>,
+    val filteredCities: List<CityWeatherCardUiItem>,
+    val searchQuery: String = "",
+    val isCelciusNotFarenheit: Boolean = true,
 ) {
     companion object {
-        fun initial() = CityListScreenState(cities = emptyList())
+        fun initial() = CityListScreenState(
+            allCities = emptyList(),
+            filteredCities = emptyList(),
+        )
     }
 }
 

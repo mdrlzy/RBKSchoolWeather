@@ -14,9 +14,20 @@ import com.mdrlzy.ui.theme.CoreRString
 import com.mdrlzy.ui.theme.OnWeatherDescription
 
 @Composable
-fun HomeHeader(state: HomeWeatherPageUiState) {
-    val maxTemperature = stringResource(CoreRString.temperature_degrees, state.maxTemp)
-    val minTemperature = stringResource(CoreRString.temperature_degrees, state.minTemp)
+fun HomeHeader(
+    state: HomeWeatherPageUiState,
+    isCelciusNotFarenheit: Boolean,
+) {
+    val temperatureUnit = stringResource(
+        if (isCelciusNotFarenheit) {
+            CoreRString.degrees_celsius_symbol
+        } else {
+            CoreRString.degrees_fahrenheit_symbol
+        }
+    )
+    val currentTemperature = stringResource(CoreRString.temperature_with_unit, state.temp, temperatureUnit)
+    val maxTemperature = stringResource(CoreRString.temperature_with_unit, state.maxTemp, temperatureUnit)
+    val minTemperature = stringResource(CoreRString.temperature_with_unit, state.minTemp, temperatureUnit)
 
     Column(
         modifier = Modifier
@@ -36,7 +47,7 @@ fun HomeHeader(state: HomeWeatherPageUiState) {
         )
 
         Text(
-            text = stringResource(CoreRString.temperature_degrees, state.temp),
+            text = currentTemperature,
             style = MaterialTheme.typography.displayLarge,
             color = Color.White
         )
