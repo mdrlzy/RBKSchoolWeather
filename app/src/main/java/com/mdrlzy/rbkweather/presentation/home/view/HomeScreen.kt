@@ -10,6 +10,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.CircularProgressIndicator
@@ -111,7 +113,7 @@ fun HomeScreen(
             modifier = Modifier.fillMaxSize(),
             painter = painterResource(CoreRDrawable.bg_clear_day),
             contentDescription = null,
-            contentScale = ContentScale.FillWidth,
+            contentScale = ContentScale.FillBounds,
         )
 
         if (state.pages.isNotEmpty()) {
@@ -130,7 +132,8 @@ fun HomeScreen(
         HomeBottomNavBar(
             modifier = Modifier
                 .fillMaxWidth()
-                .align(Alignment.BottomCenter),
+                .align(Alignment.BottomCenter)
+                .navigationBarsPadding(),
             onListClick = onNavigateToCityList,
             currentPage = pagerState.currentPage,
             pageCount = state.pages.size,
