@@ -14,7 +14,9 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.pulltorefresh.pullToRefresh
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -86,14 +88,23 @@ fun HomeScreen(
         return
     }
 
-    Box(
+    PullToRefreshBox(
         modifier = Modifier
-            .fillMaxSize()
-            .pullToRefresh(
+            .fillMaxSize(),
+        state = pullRefreshState,
+        isRefreshing = state.isRefreshing,
+        onRefresh = viewModel::onRefresh,
+        indicator = {
+            PullToRefreshDefaults.Indicator(
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = 16.dp),
                 state = pullRefreshState,
                 isRefreshing = state.isRefreshing,
-                onRefresh = { viewModel.onRefresh() }
+                containerColor = MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.colorScheme.onPrimary,
             )
+        },
     ) {
 
         Image(
