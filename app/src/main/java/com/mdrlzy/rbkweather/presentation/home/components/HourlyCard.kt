@@ -30,7 +30,16 @@ import com.mdrlzy.ui.theme.OnCardContent
 fun HourlyCard(
     description: String,
     hourItems: List<HourlyUiModel>,
+    isCelciusNotFarenheit: Boolean,
 ) {
+    val temperatureUnit = stringResource(
+        if (isCelciusNotFarenheit) {
+            CoreRString.degrees_celsius_symbol
+        } else {
+            CoreRString.degrees_fahrenheit_symbol
+        }
+    )
+
     InfoCard(
         modifier = Modifier.fillMaxWidth(),
     ) {
@@ -65,7 +74,11 @@ fun HourlyCard(
                         )
                         Spacer(Modifier.height(12.dp))
                         Text(
-                            stringResource(CoreRString.temperature_degrees, item.temperature),
+                            stringResource(
+                                CoreRString.temperature_with_unit,
+                                item.temperature,
+                                temperatureUnit,
+                            ),
                             style = MaterialTheme.typography.bodyLarge,
                             color = OnCardContent
                         )

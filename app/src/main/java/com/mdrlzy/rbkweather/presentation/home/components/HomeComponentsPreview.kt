@@ -21,7 +21,10 @@ import java.time.OffsetDateTime
 @Composable
 private fun HomeHeaderPreview() {
     RBKWeatherTheme {
-        HomeHeader(state = previewHomeWeatherPageState())
+        HomeHeader(
+            state = previewHomeWeatherPageState(),
+            isCelciusNotFarenheit = true,
+        )
     }
 }
 
@@ -43,6 +46,7 @@ private fun HourlyCardPreview() {
         HourlyCard(
             description = "Clear conditions for the hour. Wind is light.",
             hourItems = previewHourlyItems(),
+            isCelciusNotFarenheit = true,
         )
     }
 }
@@ -51,7 +55,10 @@ private fun HourlyCardPreview() {
 @Composable
 private fun DailyForecastCardPreview() {
     RBKWeatherTheme {
-        DailyForecastCard(dailyItems = previewDailyItems())
+        DailyForecastCard(
+            dailyItems = previewDailyItems(),
+            isCelciusNotFarenheit = true,
+        )
     }
 }
 
@@ -62,6 +69,7 @@ private fun AveragePreview() {
         Average(
             modifier = Modifier.width(180.dp),
             averageTemp = 18,
+            isCelciusNotFarenheit = true,
         )
     }
 }
@@ -73,6 +81,7 @@ private fun FeelsLikePreview() {
         FeelsLike(
             modifier = Modifier.width(180.dp),
             feelsLike = 17,
+            isCelciusNotFarenheit = true,
         )
     }
 }
@@ -84,6 +93,7 @@ private fun HumidityPreview() {
         Humidity(
             modifier = Modifier.width(180.dp),
             humidity = 64,
+            isCelciusNotFarenheit = true,
         )
     }
 }

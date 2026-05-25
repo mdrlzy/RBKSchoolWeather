@@ -92,6 +92,7 @@ fun CityListScreen(
 
     if (isMenuBottomSheetVisible) {
         CityListMenuBottomSheet(
+            onTemperatureUnitClick = viewModel::onTemperatureUnitClick,
             onDismissRequest = viewModel::onMenuDismiss
         )
     }
@@ -130,7 +131,10 @@ private fun CityListScreenContent(
                     items = state.filteredCities,
                     key = { it.id },
                 ) { city ->
-                    CityWeatherCard(item = city)
+                    CityWeatherCard(
+                        item = city,
+                        isCelciusNotFarenheit = state.isCelciusNotFarenheit,
+                    )
                 }
                 item {
                     Spacer(Modifier.height(8.dp))
@@ -195,6 +199,7 @@ private fun CityListHeader(
 @Composable
 private fun CityWeatherCard(
     item: CityWeatherCardUiItem,
+    isCelciusNotFarenheit: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val shape = RoundedCornerShape(22.dp)
@@ -202,18 +207,25 @@ private fun CityWeatherCard(
     val cityName = item.cityName ?: stringResource(CoreRString.unknown_city)
     val subtitle = item.subtitle ?: stringResource(CoreRString.no_data)
     val condition = item.condition ?: stringResource(CoreRString.weather_no_data)
+    val temperatureUnit = stringResource(
+        if (isCelciusNotFarenheit) {
+            CoreRString.degrees_celsius_symbol
+        } else {
+            CoreRString.degrees_fahrenheit_symbol
+        }
+    )
     val temperature = if (item.temperature != null) {
-        stringResource(CoreRString.temperature_degrees, item.temperature)
+        stringResource(CoreRString.temperature_with_unit, item.temperature, temperatureUnit)
     } else {
         noValue
     }
     val minTemperature = if (item.minTemperature != null) {
-        stringResource(CoreRString.temperature_degrees, item.minTemperature)
+        stringResource(CoreRString.temperature_with_unit, item.minTemperature, temperatureUnit)
     } else {
         noValue
     }
     val maxTemperature = if (item.maxTemperature != null) {
-        stringResource(CoreRString.temperature_degrees, item.maxTemperature)
+        stringResource(CoreRString.temperature_with_unit, item.maxTemperature, temperatureUnit)
     } else {
         noValue
     }

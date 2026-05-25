@@ -36,6 +36,7 @@ import java.time.OffsetDateTime
 @Composable
 fun HomeWeatherPage(
     pageState: HomeWeatherPageUiState,
+    isCelciusNotFarenheit: Boolean,
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
@@ -49,19 +50,26 @@ fun HomeWeatherPage(
         )
     ) {
         item {
-            HomeHeader(pageState)
+            HomeHeader(
+                state = pageState,
+                isCelciusNotFarenheit = isCelciusNotFarenheit,
+            )
             Spacer(Modifier.height(68.dp))
         }
 
         item {
             HourlyCard(
-                pageState.detailedDescription,
-                pageState.hourlyItems
+                description = pageState.detailedDescription,
+                hourItems = pageState.hourlyItems,
+                isCelciusNotFarenheit = isCelciusNotFarenheit,
             )
         }
 
         item {
-            DailyForecastCard(pageState.dailyItems)
+            DailyForecastCard(
+                dailyItems = pageState.dailyItems,
+                isCelciusNotFarenheit = isCelciusNotFarenheit,
+            )
         }
 
         item {
@@ -69,11 +77,13 @@ fun HomeWeatherPage(
                 Average(
                     modifier = Modifier.weight(1f),
                     averageTemp = pageState.temp,
+                    isCelciusNotFarenheit = isCelciusNotFarenheit,
                 )
                 Spacer(Modifier.width(8.dp))
                 FeelsLike(
                     modifier = Modifier.weight(1f),
                     feelsLike = pageState.feelsLike,
+                    isCelciusNotFarenheit = isCelciusNotFarenheit,
                 )
             }
         }
@@ -91,6 +101,7 @@ fun HomeWeatherPage(
                 Humidity(
                     modifier = Modifier.weight(1f),
                     humidity = pageState.humidity,
+                    isCelciusNotFarenheit = isCelciusNotFarenheit,
                 )
                 Spacer(Modifier.width(8.dp))
                 Pressure(
@@ -160,6 +171,7 @@ private fun HomeWeatherPagePreview() {
                     sunsetTime = OffsetDateTime.parse("2026-05-10T20:24:00+03:00"),
                     sunriseTime = OffsetDateTime.parse("2026-05-10T04:12:00+03:00"),
                 ),
+                isCelciusNotFarenheit = true,
             )
         }
     }

@@ -10,6 +10,7 @@ kotlin = "2.3.21"
 composeBom = "2026.04.01"
 appcompat = "1.7.1"
 material = "1.13.0"
+datastore = "1.2.1"
 playServicesLocation = "21.3.0"
 retrofit = "3.0.0"
 navigationCompose = "2.9.8"
@@ -47,6 +48,7 @@ androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lif
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 
 [plugins]

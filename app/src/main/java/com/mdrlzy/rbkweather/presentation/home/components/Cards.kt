@@ -23,14 +23,17 @@ import java.time.format.DateTimeFormatter
 fun Average(
     modifier: Modifier,
     averageTemp: Int,
+    isCelciusNotFarenheit: Boolean,
 ) {
+    val temperatureUnit = temperatureUnit(isCelciusNotFarenheit)
+
     InfoCardSmall(
         modifier = modifier,
         icon = CoreRDrawable.graph,
         title = stringResource(CoreRString.in_average),
     ) {
         Text(
-            text = stringResource(CoreRString.average_temp_delta, averageTemp),
+            text = stringResource(CoreRString.average_temp_delta_with_unit, averageTemp, temperatureUnit),
             style = MaterialTheme.typography.headlineMedium,
         )
     }
@@ -40,14 +43,17 @@ fun Average(
 fun FeelsLike(
     modifier: Modifier,
     feelsLike: Int,
+    isCelciusNotFarenheit: Boolean,
 ) {
+    val temperatureUnit = temperatureUnit(isCelciusNotFarenheit)
+
     InfoCardSmall(
         modifier = modifier,
         icon = CoreRDrawable.graph,
         title = stringResource(CoreRString.feels_like),
     ) {
         Text(
-            text = stringResource(CoreRString.temperature_degrees, feelsLike),
+            text = stringResource(CoreRString.temperature_with_unit, feelsLike, temperatureUnit),
             style = MaterialTheme.typography.headlineMedium,
         )
     }
@@ -57,7 +63,11 @@ fun FeelsLike(
 fun Humidity(
     modifier: Modifier,
     humidity: Int,
+    isCelciusNotFarenheit: Boolean,
 ) {
+    val temperatureUnit = temperatureUnit(isCelciusNotFarenheit)
+    val dewPoint = stringResource(CoreRString.temperature_with_unit, 5, temperatureUnit)
+
     InfoCardSmall(
         modifier = modifier,
         icon = CoreRDrawable.humidity,
@@ -70,7 +80,7 @@ fun Humidity(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        Text(text = stringResource(CoreRString.humidity_dew_point_now, 5))
+        Text(text = stringResource(CoreRString.humidity_dew_point_now_with_unit, dewPoint))
     }
 }
 
@@ -194,4 +204,15 @@ fun WindCard(
 private fun Int.toCardinalDirection(directions: Array<String>): String {
     val index = ((this % 360 + 22.5) / 45).toInt() % directions.size
     return directions[index]
+}
+
+@Composable
+private fun temperatureUnit(isCelciusNotFarenheit: Boolean): String {
+    return stringResource(
+        if (isCelciusNotFarenheit) {
+            CoreRString.degrees_celsius_symbol
+        } else {
+            CoreRString.degrees_fahrenheit_symbol
+        }
+    )
 }

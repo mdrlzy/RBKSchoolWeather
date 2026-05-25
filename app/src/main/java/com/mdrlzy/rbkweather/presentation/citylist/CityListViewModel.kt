@@ -4,22 +4,27 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mdrlzy.rbkweather.domain.model.CityWeatherSummary
 import com.mdrlzy.rbkweather.domain.repository.CityLocationRepository
+import com.mdrlzy.rbkweather.domain.repository.Preferences
 import com.mdrlzy.rbkweather.domain.repository.WeatherRepository
+import com.mdrlzy.rbkweather.presentation.mapper.toDisplayTemperature
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
-import kotlin.math.roundToInt
 
 class CityListViewModel(
     private val cityLocationRepository: CityLocationRepository,
     private val weatherRepository: WeatherRepository,
+    private val preferences: Preferences,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(CityListScreenState.initial())
@@ -28,17 +33,25 @@ class CityListViewModel(
     private val _effect = Channel<CityListEffect>(Channel.BUFFERED)
     val effect: Flow<CityListEffect> = _effect.receiveAsFlow()
 
+    private var cityWeatherSummaries: List<CityWeatherSummary> = emptyList()
+
     init {
+        preferences.isCelciusNotFarenheit.onEach { isCelciusNotFarenheit ->
+            updateCities(
+                summaries = cityWeatherSummaries,
+                isCelciusNotFarenheit = isCelciusNotFarenheit,
+            )
+        }.launchIn(viewModelScope)
+
         viewModelScope.launch {
             cityLocationRepository.ensureDefaultCities()
             cityLocationRepository.getCities().forEach { city ->
                 weatherRepository.getCurrent(city)
             }
-            val cities = cityLocationRepository.getCityWeatherSummaries()
-            val allCities = cities.map { it.toUi() }
-            _state.value = _state.value.copy(
-                allCities = allCities,
-                filteredCities = allCities,
+            cityWeatherSummaries = cityLocationRepository.getCityWeatherSummaries()
+            updateCities(
+                summaries = cityWeatherSummaries,
+                isCelciusNotFarenheit = _state.value.isCelciusNotFarenheit,
             )
         }
     }
@@ -72,13 +85,47 @@ class CityListViewModel(
         }
     }
 
+    fun onTemperatureUnitClick(isCelciusNotFarenheit: Boolean) {
+        viewModelScope.launch {
+            preferences.setIsCelciusNotFarenheit(isCelciusNotFarenheit)
+            _effect.send(CityListEffect.HideMenuBottomSheet)
+        }
+    }
+
     override fun onCleared() {
         _effect.close()
         super.onCleared()
     }
+
+    private fun updateCities(
+        summaries: List<CityWeatherSummary>,
+        isCelciusNotFarenheit: Boolean,
+    ) {
+        val allCities = summaries.map { summary ->
+            summary.toUi(isCelciusNotFarenheit)
+        }
+        val filteredCities = allCities.filterByQuery(_state.value.searchQuery)
+
+        _state.update {
+            it.copy(
+                allCities = allCities,
+                filteredCities = filteredCities,
+                isCelciusNotFarenheit = isCelciusNotFarenheit,
+            )
+        }
+    }
 }
 
-private fun CityWeatherSummary.toUi(): CityWeatherCardUiItem {
+private fun List<CityWeatherCardUiItem>.filterByQuery(query: String): List<CityWeatherCardUiItem> {
+    if (query.isBlank()) return this
+
+    val trimmedQuery = query.trim()
+    return filter { city ->
+        city.cityName?.contains(trimmedQuery, ignoreCase = true) == true
+    }
+}
+
+private fun CityWeatherSummary.toUi(isCelciusNotFarenheit: Boolean): CityWeatherCardUiItem {
     val offset = timezoneOffsetSeconds?.let(ZoneOffset::ofTotalSeconds)
     val subtitle = if (currentDateTimeEpochSeconds != null && offset != null) {
         DateTimeFormatter.ofPattern("HH:mm")
@@ -92,8 +139,8 @@ private fun CityWeatherSummary.toUi(): CityWeatherCardUiItem {
         cityName = cityName,
         subtitle = subtitle,
         condition = currentConditionDescription,
-        temperature = currentTemp?.roundToInt(),
-        minTemperature = minTemp?.roundToInt(),
-        maxTemperature = maxTemp?.roundToInt(),
+        temperature = currentTemp?.toDisplayTemperature(isCelciusNotFarenheit),
+        minTemperature = minTemp?.toDisplayTemperature(isCelciusNotFarenheit),
+        maxTemperature = maxTemp?.toDisplayTemperature(isCelciusNotFarenheit),
     )
 }

@@ -109,7 +109,10 @@ fun HomeScreen(
                 modifier = Modifier.fillMaxSize(),
                 beyondViewportPageCount = 1,
             ) { page ->
-                HomeWeatherPage(pageState = state.pages[page])
+                HomeWeatherPage(
+                    pageState = state.pages[page],
+                    isCelciusNotFarenheit = state.isCelciusNotFarenheit,
+                )
             }
         }
 

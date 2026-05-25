@@ -31,7 +31,18 @@ import com.mdrlzy.ui.theme.CoreRString
 import com.mdrlzy.ui.theme.OnCardContent
 
 @Composable
-fun DailyForecastCard(dailyItems: List<DailyForecastUi>) {
+fun DailyForecastCard(
+    dailyItems: List<DailyForecastUi>,
+    isCelciusNotFarenheit: Boolean,
+) {
+    val temperatureUnit = stringResource(
+        if (isCelciusNotFarenheit) {
+            CoreRString.degrees_celsius_symbol
+        } else {
+            CoreRString.degrees_fahrenheit_symbol
+        }
+    )
+
     InfoCard(
         modifier = Modifier.fillMaxWidth(),
     ) {
@@ -65,7 +76,11 @@ fun DailyForecastCard(dailyItems: List<DailyForecastUi>) {
                     Spacer(Modifier.width(18.dp))
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = stringResource(CoreRString.temperature_degrees, item.minTemp),
+                            text = stringResource(
+                                CoreRString.temperature_with_unit,
+                                item.minTemp,
+                                temperatureUnit,
+                            ),
                             color = OnCardContent.copy(alpha = 0.52f),
                             style = MaterialTheme.typography.labelMedium,
                         )
@@ -86,7 +101,11 @@ fun DailyForecastCard(dailyItems: List<DailyForecastUi>) {
                             )
                         }
                         Text(
-                            text = stringResource(CoreRString.temperature_degrees, item.maxTemp),
+                            text = stringResource(
+                                CoreRString.temperature_with_unit,
+                                item.maxTemp,
+                                temperatureUnit,
+                            ),
                             color = OnCardContent,
                             style = MaterialTheme.typography.labelMedium,
                         )
