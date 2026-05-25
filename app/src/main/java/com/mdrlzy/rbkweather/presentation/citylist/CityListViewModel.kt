@@ -35,8 +35,29 @@ class CityListViewModel(
                 weatherRepository.getCurrent(city)
             }
             val cities = cityLocationRepository.getCityWeatherSummaries()
-            _state.value = CityListScreenState(cities = cities.map { it.toUi() })
+            val allCities = cities.map { it.toUi() }
+            _state.value = _state.value.copy(
+                allCities = allCities,
+                filteredCities = allCities,
+            )
         }
+    }
+
+    fun onSearchQueryChange(query: String) {
+        val allCities = _state.value.allCities
+        val filteredCities = if (query.isBlank()) {
+            allCities
+        } else {
+            val trimmedQuery = query.trim()
+            allCities.filter { city ->
+                city.cityName?.contains(trimmedQuery, ignoreCase = true) == true
+            }
+        }
+
+        _state.value = _state.value.copy(
+            filteredCities = filteredCities,
+            searchQuery = query,
+        )
     }
 
     fun onMoreClick() {
